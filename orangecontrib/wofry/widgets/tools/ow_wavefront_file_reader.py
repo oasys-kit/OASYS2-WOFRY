@@ -6,17 +6,21 @@ try:
 except:
     print("Fail to import silx.gui.dialog.DataFileDialog: need silx >= 0.7")
 
-from orangewidget import gui,widget
+from orangewidget import gui
 from orangewidget.settings import Setting
-from oasys.widgets import gui as oasysgui, congruence
-from oasys.widgets import widget as oasyswidget
+from orangewidget.widget import  Output
+
+from oasys2.widget.widget import OWAction, OWWidget
+from oasys2.widget import gui as oasysgui
+from oasys2.widget.util import congruence
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from wofryimpl.propagator.light_source_h5file import WOH5FileLightSource
 from wofryimpl.beamline.beamline import WOBeamline
 
 from orangecontrib.wofry.util.wofry_objects import WofryData
 
-class OWWavefrontFileReader(oasyswidget.OWWidget):
+class OWWavefrontFileReader(OWWidget):
     name = "Generic Wavefront File Reader"
     description = "Utility: Wofry Wavefront File Reader"
     icon = "icons/file_reader.png"
@@ -31,20 +35,14 @@ class OWWavefrontFileReader(oasyswidget.OWWidget):
     file_name = Setting("")
     data_path = Setting("")
 
-    outputs = [{"name":"WofryData2D",
-                "type":WofryData,
-                "doc":"WofryData2D",
-                "id":"WofryData2D"},
-               {"name": "WofryData1D",
-                "type": WofryData,
-                "doc": "WofryData1D",
-                "id": "WofryData1D"},
-               ]
+    class Outputs:
+        wofry_data_1D = Output("WofryData1D", WofryData, id="WofryData1D", default=True, auto_summary=False)
+        wofry_data_2D = Output("WofryData2D", WofryData, id="WofryData2D", default=True, auto_summary=False)
 
     def __init__(self):
         super().__init__()
 
-        self.runaction = widget.OWAction("Send Data", self)
+        self.runaction = OWAction("Send Data", self)
         self.runaction.triggered.connect(self.send_data)
         self.addAction(self.runaction)
 
@@ -74,15 +72,8 @@ class OWWavefrontFileReader(oasyswidget.OWWidget):
 
         gui.rubber(self.controlArea)
 
-
     def get_light_source(self):
-        light_source = WOH5FileLightSource(
-            name   = self.name                ,
-            h5file = self.file_name,
-        )
-        return light_source
-
-
+        return WOH5FileLightSource(name = self.name, h5file = self.file_name)
 
     def read_file(self):
 
@@ -117,10 +108,10 @@ class OWWavefrontFileReader(oasyswidget.OWWidget):
 
             if light_source.get_dimension() == 1:
                 print(">>> sending 1D wavefront")
-                self.send("WofryData1D", WofryData(wavefront=wfr, beamline=beamline))
+                self.Outputs.wofry_data_1D.send(WofryData(wavefront=wfr, beamline=beamline))
             elif light_source.get_dimension() == 2:
                 print(">>> sending 2D wavefront")
-                self.send("WofryData2D", WofryData(wavefront=wfr, beamline=beamline))
+                self.Outputs.wofry_data_2D.send(WofryData(wavefront=wfr, beamline=beamline))
             else:
                 raise Exception("Invalid wavefront dimension")
         except Exception as e:
@@ -128,14 +119,5 @@ class OWWavefrontFileReader(oasyswidget.OWWidget):
 
             if self.IS_DEVELOP:raise e
 
-if __name__ == "__main__":
-    from PyQt5.QtWidgets import QApplication
-    import sys
-
-    a = QApplication(sys.argv)
-    ow = OWWavefrontFileReader()
-    ow.file_name = "/users/srio/Oasys/tmp.h5"
-    ow.data_path = "wfr"
-    ow.show()
-    a.exec_()
+add_widget_parameters_to_module(__name__)
 

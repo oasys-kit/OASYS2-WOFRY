@@ -4,13 +4,18 @@ import os
 
 from PyQt5.QtWidgets import QMessageBox
 
-from orangewidget import gui, widget
+from orangewidget import gui
 from orangewidget.settings import Setting
-from oasys.widgets import gui as oasysgui, congruence
+from orangewidget.widget import Input
+
+from oasys2.widget.widget import OWAction, OWWidget
+from oasys2.widget import gui as oasysgui
+from oasys2.widget.util import congruence
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from orangecontrib.wofry.util.wofry_objects import WofryData
 
-class OWWavefrontFileWriter(widget.OWWidget):
+class OWWavefrontFileWriter(OWWidget):
     name = "Generic Wavefront  File Writer"
     description = "Utility: Wofry Wavefront  File Writer"
     icon = "icons/file_writer.png"
@@ -26,14 +31,15 @@ class OWWavefrontFileWriter(widget.OWWidget):
     data_path = Setting("wfr")
     is_automatic_run= Setting(1)
 
-    inputs = [("WofryData" , WofryData, "setGenericWavefront")]
+    class Inputs:
+        wofry_data = Input("WofryData", WofryData, id="WofryData", default=True, auto_summary=False)
 
     wavefront = None
 
     def __init__(self):
         super().__init__()
 
-        self.runaction = widget.OWAction("Write HDF5 File", self)
+        self.runaction = OWAction("Write HDF5 File", self)
         self.runaction.triggered.connect(self.write_file)
         self.addAction(self.runaction)
 
@@ -69,6 +75,7 @@ class OWWavefrontFileWriter(widget.OWWidget):
     def selectFile(self):
         self.le_file_name.setText(oasysgui.selectFileFromDialog(self, self.file_name, "Open HDF5 File"))
 
+    @Inputs.wofry_data
     def setGenericWavefront(self, data):
         if not data is None:
             self.wavefront = data.get_wavefront()
@@ -100,13 +107,4 @@ class OWWavefrontFileWriter(widget.OWWidget):
             QMessageBox.critical(self, "Error", str(exception), QMessageBox.Ok)
 
 
-if __name__ == "__main__":
-    from PyQt5.QtWidgets import QApplication
-    import sys
-
-    a = QApplication(sys.argv)
-    ow = OWWavefrontFileWriter()
-    ow.file_name = "tmp.h5"
-
-    ow.show()
-    a.exec_()
+add_widget_parameters_to_module(__name__)

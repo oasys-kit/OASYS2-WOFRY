@@ -1,16 +1,22 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QPalette, QColor, QFont
+from typing import List, Any
+from collections import namedtuple
 
-from orangewidget import widget, gui
+from PyQt5.QtWidgets import QMessageBox, QTreeView, QAbstractItemView
+from PyQt5.QtGui import QPalette, QColor, QFont, QStandardItemModel, QStandardItem
+from PyQt5.QtCore import Qt, QSortFilterProxyModel, pyqtSignal, QModelIndex
+
+from orangewidget import gui
 from orangewidget.settings import Setting
+from orangewidget.widget import MultiInput, Output
 
-from oasys.widgets import gui as oasysgui
-from oasys.widgets.widget import OWWidget
+from oasys2.widget.widget import OWAction, OWWidget
+from oasys2.widget import gui as oasysgui
+from oasys2.widget.util import congruence
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from orangecontrib.wofry.util.wofry_objects import WofryData
 
 class OWWOMerge(OWWidget):
-
     name = "Merge Wofry Data"
     description = "Display Data: Merge Wofry Data"
     icon = "icons/merge.png"
@@ -20,64 +26,35 @@ class OWWOMerge(OWWidget):
     category = "Wofry Tools"
     keywords = ["WodryData", "Add wavefronts"]
 
-    inputs = [("Input WofryData # 1" , WofryData, "setWavefront1" ),
-              ("Input WofryData # 2" , WofryData, "setWavefront2" ),
-              ("Input WofryData # 3" , WofryData, "setWavefront3" ),
-              ("Input WofryData # 4" , WofryData, "setWavefront4" ),
-              ("Input WofryData # 5" , WofryData, "setWavefront5" ),
-              ("Input WofryData # 6" , WofryData, "setWavefront6" ),
-              ("Input WofryData # 7" , WofryData, "setWavefront7" ),
-              ("Input WofryData # 8" , WofryData, "setWavefront8" ),
-              ("Input WofryData # 9" , WofryData, "setWavefront9" ),
-              ("Input WofryData # 10", WofryData, "setWavefront10"),]
+    class Inputs:
+        wofry_data = MultiInput("WofryData", WofryData, default=True, auto_summary=False)
 
-    outputs = [{"name":"WofryData",
-                "type":WofryData,
-                "doc":"WofryData",
-                "id":"WofryData"}]
+    class Outputs:
+        wofry_data_1D = Output("WofryData", WofryData, id="WofryData", default=True, auto_summary=False)
 
     want_main_area=0
     want_control_area = 1
 
-    input_wavefront1=None
-    input_wavefront2=None
-    input_wavefront3=None
-    input_wavefront4=None
-    input_wavefront5=None
-    input_wavefront6=None
-    input_wavefront7=None
-    input_wavefront8=None
-    input_wavefront9=None
-    input_wavefront10=None
+    input_wavefront = []
 
     use_weights = Setting(0)
 
-    weight_input_wavefront1=Setting(1.0)
-    weight_input_wavefront2=Setting(1.0)
-    weight_input_wavefront3=Setting(1.0)
-    weight_input_wavefront4=Setting(1.0)
-    weight_input_wavefront5=Setting(1.0)
-    weight_input_wavefront6=Setting(1.0)
-    weight_input_wavefront7=Setting(1.0)
-    weight_input_wavefront8=Setting(1.0)
-    weight_input_wavefront9=Setting(1.0)
-    weight_input_wavefront10=Setting(1.0)
+    weights_input_wavefront = Setting([[1.0, 0.0]])
 
-    phase_input_wavefront1=Setting(0.0)
-    phase_input_wavefront2=Setting(0.0)
-    phase_input_wavefront3=Setting(0.0)
-    phase_input_wavefront4=Setting(0.0)
-    phase_input_wavefront5=Setting(0.0)
-    phase_input_wavefront6=Setting(0.0)
-    phase_input_wavefront7=Setting(0.0)
-    phase_input_wavefront8=Setting(0.0)
-    phase_input_wavefront9=Setting(0.0)
-    phase_input_wavefront10=Setting(0.0)
+    HEADER_SCHEMA = [
+        ['index', {'label': 'Index'}],
+        ['weight', {'label': 'Weight'}],
+        ['phase', {'label': 'Phase'}],
+    ]  # type: List[str, dict]
 
-    def __init__(self, show_automatic_box=True):
+    def __init__(self):
         super().__init__()
 
-        self.runaction = widget.OWAction("Merge Wavefronts", self)
+        self._header_labels = [header['label'] for _, header in self.HEADER_SCHEMA]
+        self._header_index  = namedtuple('_header_index', [info_tag for info_tag, _ in self.HEADER_SCHEMA])
+        self.view_header    = self._header_index(*[index for index, _ in enumerate(self._header_labels)])
+
+        self.runaction = OWAction("Merge Wavefronts", self)
         self.runaction.triggered.connect(self.merge_wavefronts)
         self.addAction(self.runaction)
 
@@ -105,272 +82,97 @@ class OWWOMerge(OWWidget):
 
         gui.separator(weight_box, height=10)
 
-        self.le_weight_input_wavefront1 = oasysgui.lineEdit(weight_box, self, "weight_input_wavefront1", "Input Wavefront 1 weight",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        self.le_phase_input_wavefront1 = oasysgui.lineEdit(weight_box, self, "phase_input_wavefront1", "Input Wavefront 1 add phase [rad]",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        gui.separator(weight_box, height=10)
+        self.weights_view = oasysgui.TreeViewWithReturn(
+            sortingEnabled=True,
+            selectionMode=QTreeView.SingleSelection,
+            alternatingRowColors=True,
+            rootIsDecorated=False,
+            editTriggers=QTreeView.NoEditTriggers,
+            uniformRowHeights=True,
+            toolTip="Press Return or double-click to send"
+        )
+        self.weights_view.setModel(QSortFilterProxyModel())
+        self.weights_view.setItemDelegate(oasysgui.UniformHeightDelegate(self))
+        self.weights_view.setItemDelegateForColumn(self.view_header.index, oasysgui.NumericalDelegate(self))
+        self.weights_view.setItemDelegateForColumn(self.view_header.weight, oasysgui.NumericalDelegate(self))
+        self.weights_view.setItemDelegateForColumn(self.view_header.phase,  oasysgui.NumericalDelegate(self))
 
-        self.le_weight_input_wavefront2 = oasysgui.lineEdit(weight_box, self, "weight_input_wavefront2", "Input Wavefront 2 weight",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        self.le_phase_input_wavefront2 = oasysgui.lineEdit(weight_box, self, "phase_input_wavefront2", "Input Wavefront 2 add phase [rad]",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        gui.separator(weight_box, height=10)
+        weight_box.layout().addWidget(self.weights_view)
 
-        self.le_weight_input_wavefront3 = oasysgui.lineEdit(weight_box, self, "weight_input_wavefront3", "Input Wavefront 3 weight",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        self.le_phase_input_wavefront3 = oasysgui.lineEdit(weight_box, self, "phase_input_wavefront3", "Input Wavefront 3 add phase [rad]",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        gui.separator(weight_box, height=10)
-
-        self.le_weight_input_wavefront4 = oasysgui.lineEdit(weight_box, self, "weight_input_wavefront4", "Input Wavefront 4 weight",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        self.le_phase_input_wavefront4 = oasysgui.lineEdit(weight_box, self, "phase_input_wavefront4", "Input Wavefront 4 add phase [rad]",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        gui.separator(weight_box, height=10)
-
-        self.le_weight_input_wavefront5 = oasysgui.lineEdit(weight_box, self, "weight_input_wavefront5", "Input Wavefront 5 weight",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        self.le_phase_input_wavefront5 = oasysgui.lineEdit(weight_box, self, "phase_input_wavefront5", "Input Wavefront 5 add phase [rad]",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        gui.separator(weight_box, height=10)
-
-        self.le_weight_input_wavefront6 = oasysgui.lineEdit(weight_box, self, "weight_input_wavefront6", "Input Wavefront 6 weight",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        self.le_phase_input_wavefront6 = oasysgui.lineEdit(weight_box, self, "phase_input_wavefront6", "Input Wavefront 6 add phase [rad]",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        gui.separator(weight_box, height=10)
-
-        self.le_weight_input_wavefront7 = oasysgui.lineEdit(weight_box, self, "weight_input_wavefront7", "Input Wavefront 7 weight",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        self.le_phase_input_wavefront7 = oasysgui.lineEdit(weight_box, self, "phase_input_wavefront7", "Input Wavefront 7 add phase [rad]",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        gui.separator(weight_box, height=10)
-
-        self.le_weight_input_wavefront8 = oasysgui.lineEdit(weight_box, self, "weight_input_wavefront8", "Input Wavefront 8 weight",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        self.le_phase_input_wavefront8 = oasysgui.lineEdit(weight_box, self, "phase_input_wavefront8", "Input Wavefront 8 add phase [rad]",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        gui.separator(weight_box, height=10)
-
-        self.le_weight_input_wavefront9 = oasysgui.lineEdit(weight_box, self, "weight_input_wavefront9", "Input Wavefront 9 weight",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        self.le_phase_input_wavefront9 = oasysgui.lineEdit(weight_box, self, "phase_input_wavefront9", "Input Wavefront 9 add phase [rad]",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        gui.separator(weight_box, height=10)
-
-        self.le_weight_input_wavefront10 = oasysgui.lineEdit(weight_box, self, "weight_input_wavefront10", "Input Wavefront 10 weight",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        self.le_phase_input_wavefront10 = oasysgui.lineEdit(weight_box, self, "phase_input_wavefront10", "Input Wavefront 10 add phase [rad]",
-                                                    labelWidth=300, valueType=float, orientation="horizontal")
-        gui.separator(weight_box, height=10)
-
-        self.le_weight_input_wavefront1.setEnabled(False)
-        self.le_weight_input_wavefront2.setEnabled(False)
-        self.le_weight_input_wavefront3.setEnabled(False)
-        self.le_weight_input_wavefront4.setEnabled(False)
-        self.le_weight_input_wavefront5.setEnabled(False)
-        self.le_weight_input_wavefront6.setEnabled(False)
-        self.le_weight_input_wavefront7.setEnabled(False)
-        self.le_weight_input_wavefront8.setEnabled(False)
-        self.le_weight_input_wavefront9.setEnabled(False)
-        self.le_weight_input_wavefront10.setEnabled(False)
-
-        self.le_phase_input_wavefront1.setEnabled(False)
-        self.le_phase_input_wavefront2.setEnabled(False)
-        self.le_phase_input_wavefront3.setEnabled(False)
-        self.le_phase_input_wavefront4.setEnabled(False)
-        self.le_phase_input_wavefront5.setEnabled(False)
-        self.le_phase_input_wavefront6.setEnabled(False)
-        self.le_phase_input_wavefront7.setEnabled(False)
-        self.le_phase_input_wavefront8.setEnabled(False)
-        self.le_phase_input_wavefront9.setEnabled(False)
-        self.le_phase_input_wavefront10.setEnabled(False)
-
-
-    def setWavefront1(self, wavefront):
-        self.le_weight_input_wavefront1.setEnabled(False)
-        self.le_phase_input_wavefront1.setEnabled(False)
-        self.input_wavefront1 = None
-
+    def __check_wofry_data(self, wofry_data):
         try:
-            shape = wavefront.get_wavefront().get_complex_amplitude().shape
+            _ = wofry_data.get_wavefront().get_complex_amplitude().shape
+            return True
         except:
-            QtWidgets.QMessageBox.critical(self, "Error",
-                                           "Data #1 not displayable",
-                                           QtWidgets.QMessageBox.Ok)
-            return
+            QMessageBox.critical(self, "Error", "Wrong Input Data Format", QMessageBox.Ok)
+            return False
 
-        self.input_wavefront1 = wavefront
-        if self.use_weights:
-            self.le_weight_input_wavefront1.setEnabled(True)
-            self.le_phase_input_wavefront1.setEnabled(True)
+    @Inputs.wofry_data
+    def set_wavefront(self, index, wofry_data):
+        self.input_wavefront[index] = wofry_data
+        self.refresh_view()
 
+    @Inputs.wofry_data.insert
+    def insert_wavefront(self, index, wofry_data):
+        node_link = self.getNodeLinks()[index]
 
+        print(node_link.__dict__)
 
-    def setWavefront2(self, wavefront):
-        self.le_weight_input_wavefront2.setEnabled(False)
-        self.le_phase_input_wavefront2.setEnabled(False)
-        self.input_wavefront2 = None
+        self.input_wavefront.insert(index, wofry_data)
+        self.weights_input_wavefront.insert(index, [1.0, 0.0])
+        self.refresh_view()
 
-        try:
-            shape = wavefront.get_wavefront().get_complex_amplitude().shape
-        except:
-            QtWidgets.QMessageBox.critical(self, "Error",
-                                           "Data #2 not displayable",
-                                           QtWidgets.QMessageBox.Ok)
-            return
+    @Inputs.wofry_data.remove
+    def remove_wavefront(self, index):
+        self.input_wavefront.pop(index)
+        self.weights_input_wavefront.pop(index)
+        self.refresh_view()
 
-        self.input_wavefront2 = wavefront
-        if self.use_weights:
-            self.le_weight_input_wavefront2.setEnabled(True)
-            self.le_phase_input_wavefront2.setEnabled(True)
+    def refresh_view(self):
+        class TreeModel(QStandardItemModel):
+            data_changed = pyqtSignal(QModelIndex, float)
 
-    def setWavefront3(self, wavefront):
-        self.le_weight_input_wavefront3.setEnabled(False)
-        self.le_phase_input_wavefront3.setEnabled(False)
-        self.input_wavefront3 = None
+            def setData(self, index, value, role=Qt.EditRole):
+                if role == Qt.EditRole:
+                    item = self.itemFromIndex(index)
+                    if item:
+                        item.setData(value, Qt.EditRole)
+                        self.data_changed.emit(index, value)  # Emit signal to notify view
+                        return True
 
-        try:
-            shape = wavefront.get_wavefront().get_complex_amplitude().shape
-        except:
-            QtWidgets.QMessageBox.critical(self, "Error",
-                                           "Data #3 not displayable",
-                                           QtWidgets.QMessageBox.Ok)
-            return
+                return super().setData(index, value, role)
 
-        self.input_wavefront3 = wavefront
-        if self.use_weights:
-            self.le_weight_input_wavefront3.setEnabled(True)
-            self.le_phase_input_wavefront3.setEnabled(True)
+        model = TreeModel(self)
+        model.data_changed.connect(self.update_weigths)
+        model.setHorizontalHeaderLabels(self._header_labels)
 
-    def setWavefront4(self, wavefront):
-        self.le_weight_input_wavefront4.setEnabled(False)
-        self.le_phase_input_wavefront4.setEnabled(False)
-        self.input_wavefront4 = None
+        for i in range(len(self.input_wavefront)):
+            item0 = QStandardItem()
+            item0.setData(i+1, Qt.DisplayRole)
+            item1 = QStandardItem()
+            item1.setData(self.weights_input_wavefront[i][0], Qt.EditRole)
+            item1.setFlags(item1.flags() | Qt.ItemIsEditable)
+            item2 = QStandardItem()
+            item2.setData(self.weights_input_wavefront[i][1], Qt.EditRole)
+            item2.setFlags(item1.flags() | Qt.ItemIsEditable)
 
-        try:
-            shape = wavefront.get_wavefront().get_complex_amplitude().shape
-        except:
-            QtWidgets.QMessageBox.critical(self, "Error",
-                                           "Data #4 not displayable",
-                                           QtWidgets.QMessageBox.Ok)
-            return
+            model.appendRow([item0, item1, item2])
 
-        self.input_wavefront4 = wavefront
-        if self.use_weights:
-            self.le_weight_input_wavefront4.setEnabled(True)
-            self.le_phase_input_wavefront4.setEnabled(True)
+        self.weights_view.model().setSourceModel(model)
 
-    def setWavefront5(self, wavefront):
-        self.le_weight_input_wavefront5.setEnabled(False)
-        self.le_phase_input_wavefront5.setEnabled(False)
-        self.input_wavefront5 = None
+        self.weights_view.setColumnWidth(0, 40)
+        self.weights_view.setColumnWidth(1, 150)
+        self.weights_view.setColumnWidth(2, 150)
+        self.weights_view.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
 
-        try:
-            shape = wavefront.get_wavefront().get_complex_amplitude().shape
-        except:
-            QtWidgets.QMessageBox.critical(self, "Error",
-                                           "Data #5 not displayable",
-                                           QtWidgets.QMessageBox.Ok)
-            return
+        self.weights_view.setEnabled(self.use_weights)
 
-        self.input_wavefront5 = wavefront
-        if self.use_weights:
-            self.le_weight_input_wavefront5.setEnabled(True)
-            self.le_phase_input_wavefront5.setEnabled(True)
-
-    def setWavefront6(self, wavefront):
-        self.le_weight_input_wavefront6.setEnabled(False)
-        self.le_phase_input_wavefront6.setEnabled(False)
-        self.input_wavefront6 = None
-
-        try:
-            shape = wavefront.get_wavefront().get_complex_amplitude().shape
-        except:
-            QtWidgets.QMessageBox.critical(self, "Error",
-                                           "Data #6 not displayable",
-                                           QtWidgets.QMessageBox.Ok)
-            return
-
-        self.input_wavefront6 = wavefront
-        if self.use_weights:
-            self.le_weight_input_wavefront6.setEnabled(True)
-            self.le_phase_input_wavefront6.setEnabled(True)
-
-    def setWavefront7(self, wavefront):
-        self.le_weight_input_wavefront7.setEnabled(False)
-        self.le_phase_input_wavefront7.setEnabled(False)
-        self.input_wavefront7 = None
-
-        try:
-            shape = wavefront.get_wavefront().get_complex_amplitude().shape
-        except:
-            QtWidgets.QMessageBox.critical(self, "Error",
-                                           "Data #7 not displayable",
-                                           QtWidgets.QMessageBox.Ok)
-            return
-
-        self.input_wavefront7 = wavefront
-        if self.use_weights:
-            self.le_weight_input_wavefront7.setEnabled(True)
-            self.le_phase_input_wavefront7.setEnabled(True)
-
-    def setWavefront8(self, wavefront):
-        self.le_weight_input_wavefront8.setEnabled(False)
-        self.le_phase_input_wavefront8.setEnabled(False)
-        self.input_wavefront8 = None
-
-        try:
-            shape = wavefront.get_wavefront().get_complex_amplitude().shape
-        except:
-            QtWidgets.QMessageBox.critical(self, "Error",
-                                           "Data #8 not displayable",
-                                           QtWidgets.QMessageBox.Ok)
-            return
-
-        self.input_wavefront8 = wavefront
-        if self.use_weights:
-            self.le_weight_input_wavefront8.setEnabled(True)
-            self.le_phase_input_wavefront8.setEnabled(True)
-
-    def setWavefront9(self, wavefront):
-        self.le_weight_input_wavefront9.setEnabled(False)
-        self.le_phase_input_wavefront9.setEnabled(False)
-        self.input_wavefront9 = None
-
-        try:
-            shape = wavefront.get_wavefront().get_complex_amplitude().shape
-        except:
-            QtWidgets.QMessageBox.critical(self, "Error",
-                                           "Data #9 not displayable",
-                                           QtWidgets.QMessageBox.Ok)
-            return
-
-        self.input_wavefront9 = wavefront
-        if self.use_weights:
-            self.le_weight_input_wavefront9.setEnabled(True)
-            self.le_phase_input_wavefront9.setEnabled(True)
-
-    def setWavefront10(self, wavefront):
-        self.le_weight_input_wavefront10.setEnabled(False)
-        self.le_phase_input_wavefront10.setEnabled(False)
-        self.input_wavefront10 = None
-
-        try:
-            shape = wavefront.get_wavefront().get_complex_amplitude().shape
-        except:
-            QtWidgets.QMessageBox.critical(self, "Error",
-                                           "Data #10 not displayable",
-                                           QtWidgets.QMessageBox.Ok)
-            return
-
-        self.input_wavefront10 = wavefront
-        if self.use_weights:
-            self.le_weight_input_wavefront10.setEnabled(True)
-            self.le_phase_input_wavefront10.setEnabled(True)
+    def update_weigths(self, index, value):
+        self.weights_input_wavefront[index.row()][index.column()] = float(value)
 
     def merge_wavefronts(self):
+        return
+
         merged_wavefront = None
 
         if self.use_weights == 1:
@@ -400,14 +202,14 @@ class OWWOMerge(OWWidget):
                 else:
                     ca = current_wavefront.get_wavefront().get_complex_amplitude().copy()
                     if current_wavefront.get_wavefront().get_photon_energy() != energy:
-                        QtWidgets.QMessageBox.critical(self, "Error",
+                        QMessageBox.critical(self, "Error",
                                                        "Energies must match %f != %f" % (energy, current_wavefront.get_wavefront().get_photon_energy()),
-                                                       QtWidgets.QMessageBox.Ok)
+                                                       QMessageBox.Ok)
                         return
                     if ca.shape != shape:
-                        QtWidgets.QMessageBox.critical(self, "Error",
+                        QMessageBox.critical(self, "Error",
                                                        "Wavefronts must have the same dimension and size",
-                                                       QtWidgets.QMessageBox.Ok)
+                                                       QMessageBox.Ok)
                         return
                     cumulated_complex_amplitude += ca
 
@@ -416,37 +218,8 @@ class OWWOMerge(OWWidget):
 
         self.send("WofryData", merged_wavefront)
 
-
     def set_UseWeights(self):
-        self.le_weight_input_wavefront1.setEnabled(self.use_weights == 1 and not  self.input_wavefront1 is None)
-        self.le_weight_input_wavefront2.setEnabled(self.use_weights == 1 and not  self.input_wavefront2 is None)
-        self.le_weight_input_wavefront3.setEnabled(self.use_weights == 1 and not  self.input_wavefront3 is None)
-        self.le_weight_input_wavefront4.setEnabled(self.use_weights == 1 and not  self.input_wavefront4 is None)
-        self.le_weight_input_wavefront5.setEnabled(self.use_weights == 1 and not  self.input_wavefront5 is None)
-        self.le_weight_input_wavefront6.setEnabled(self.use_weights == 1 and not  self.input_wavefront6 is None)
-        self.le_weight_input_wavefront7.setEnabled(self.use_weights == 1 and not  self.input_wavefront7 is None)
-        self.le_weight_input_wavefront8.setEnabled(self.use_weights == 1 and not  self.input_wavefront8 is None)
-        self.le_weight_input_wavefront9.setEnabled(self.use_weights == 1 and not  self.input_wavefront9 is None)
-        self.le_weight_input_wavefront10.setEnabled(self.use_weights == 1 and not  self.input_wavefront10 is None)
-
-        self.le_phase_input_wavefront1.setEnabled(self.use_weights == 1 and not  self.input_wavefront1 is None)
-        self.le_phase_input_wavefront2.setEnabled(self.use_weights == 1 and not  self.input_wavefront2 is None)
-        self.le_phase_input_wavefront3.setEnabled(self.use_weights == 1 and not  self.input_wavefront3 is None)
-        self.le_phase_input_wavefront4.setEnabled(self.use_weights == 1 and not  self.input_wavefront4 is None)
-        self.le_phase_input_wavefront5.setEnabled(self.use_weights == 1 and not  self.input_wavefront5 is None)
-        self.le_phase_input_wavefront6.setEnabled(self.use_weights == 1 and not  self.input_wavefront6 is None)
-        self.le_phase_input_wavefront7.setEnabled(self.use_weights == 1 and not  self.input_wavefront7 is None)
-        self.le_phase_input_wavefront8.setEnabled(self.use_weights == 1 and not  self.input_wavefront8 is None)
-        self.le_phase_input_wavefront9.setEnabled(self.use_weights == 1 and not  self.input_wavefront9 is None)
-        self.le_phase_input_wavefront10.setEnabled(self.use_weights == 1 and not  self.input_wavefront10 is None)
+        self.weights_view.setEnabled(self.use_weights == 1 and not len(self.input_wavefront)==0)
 
 
-if __name__ == "__main__":
-    import sys
-    from PyQt5.QtWidgets import QApplication
-
-    a = QApplication(sys.argv)
-    ow = OWWOMerge()
-    ow.show()
-    a.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)
