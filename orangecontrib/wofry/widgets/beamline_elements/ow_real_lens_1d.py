@@ -1,25 +1,23 @@
 import numpy
-import os, sys
+import os
 
 import orangecanvas.resources as resources
 
-from PyQt5.QtGui import QPalette, QColor, QFont, QPixmap
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMessageBox, QLabel, QSizePolicy
 from PyQt5.QtCore import Qt
 
 from orangewidget import gui
 from orangewidget.settings import Setting
+from orangewidget.widget import Input
 
-from oasys.widgets import gui as oasysgui
-from oasys.widgets import congruence
-from oasys.util.oasys_util import TriggerIn, TriggerOut, EmittingStream
+from oasys2.widget import gui as oasysgui
+from oasys2.widget.util import congruence
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
+from oasys2.widget.util.widget_objects import TriggerOut
 
 from syned.widget.widget_decorator import WidgetDecorator
-
-from orangecontrib.wofry.util.wofry_objects import WofryData
-
-from orangecontrib.wofry.widgets.gui.ow_optical_element_1d import OWWOOpticalElement1D
-
+from orangecontrib.wofry.widgets.gui.ow_optical_element_1D import OWWOOpticalElement1D
 from wofryimpl.beamline.optical_elements.refractors.lens import WOLens1D
 
 
@@ -34,20 +32,11 @@ class OWWORealLens1D(OWWOOpticalElement1D):
     category = "Wofry Wavefront Propagation"
     keywords = ["data", "file", "load", "read"]
 
-    outputs = [{"name":"WofryData",
-                "type":WofryData,
-                "doc":"WofryData",
-                "id":"WofryData"},
-               {"name":"Trigger",
-                "type": TriggerIn,
-                "doc":"Feedback signal to start a new beam simulation",
-                "id":"Trigger"}]
-
-    inputs = [("WofryData", WofryData, "set_input"),
-              ("DABAM 1D Profile", numpy.ndarray, "receive_dabam_profile"),
-              ("Trigger", TriggerOut, "receive_trigger_signal"),
-              WidgetDecorator.syned_input_data()[0]]
-
+    class Inputs:
+        wofry_data           = OWWOOpticalElement1D.Inputs.wofry_data
+        dabam_profile        = Input("DABAM 1D Profile", numpy.ndarray, default=True, auto_summary=False)
+        trigger              = Input("Trigger", TriggerOut, id="Trigger", default=True, auto_summary=False)
+        syned_data           = WidgetDecorator.syned_input_data(multi_input=True)
 
     # Basic lens parameters
     shape = Setting(1)
@@ -88,7 +77,6 @@ class OWWORealLens1D(OWWOOpticalElement1D):
         super().__init__(is_automatic=True, show_view_options=True, show_script_tab=True)
 
     def draw_specific_box(self):
-
         box_refractor = oasysgui.widgetBox(self.tab_bas, "1D Lens Geometry", addSpace=False, orientation="vertical",
                                            height=350)
 
@@ -284,7 +272,6 @@ class OWWORealLens1D(OWWOOpticalElement1D):
         self.error_file_id.setText(oasysgui.selectFileFromDialog(self, self.error_file, "Open file with profile error"))
 
     def check_fields(self):
-
         self.radius = congruence.checkStrictlyPositiveNumber(self.radius, "Radius")
         self.wall_thickness = congruence.checkNumber(self.wall_thickness, "Wall thickness")
         self.lens_aperture = congruence.checkNumber(self.lens_aperture, "Lens aperture")
@@ -303,8 +290,12 @@ class OWWORealLens1D(OWWOOpticalElement1D):
         self.offset_bfs = congruence.checkNumber(self.offset_bfs, "offset_bfs")
         self.tilt_bfs = congruence.checkNumber(self.tilt_bfs, "tilt_bfs")
 
-    def receive_trigger_signal(self, trigger):
+    @Inputs.wofry_data
+    def set_wofry_data(self, wofry_data):
+        super(OWWORealLens1D, self).set_input(wofry_data)
 
+    @Inputs.trigger
+    def receive_trigger_signal(self, trigger):
         if trigger and trigger.new_object == True:
             if trigger.has_additional_parameter("variable_name"):
                 variable_name = trigger.get_additional_parameter("variable_name").strip()
@@ -322,11 +313,22 @@ class OWWORealLens1D(OWWOOpticalElement1D):
 
                 self.propagate_wavefront()
 
+    @Inputs.syned_data
+    def set_syned_data(self, index, syned_data):
+        self.receive_syned_data(syned_data)
+
+    @Inputs.syned_data.insert
+    def insert_syned_data(self, index, syned_data):
+        self.receive_syned_data(syned_data)
+
+    @Inputs.syned_data.remove
+    def remove_syned_data(self, index):
+        pass
+
     def receive_syned_data(self):
-        raise Exception(NotImplementedError)
+        raise NotImplementedError("Not implemented, yet")
 
-
-
+    @Inputs.dabam_profile
     def receive_dabam_profile(self, dabam_profile):
         if not dabam_profile is None:
             try:
@@ -387,7 +389,6 @@ class OWWORealLens1D(OWWOOpticalElement1D):
         return titles
 
     def do_plot_results(self, progressBarValue=80): # OVERWRITTEN
-
         super().do_plot_results(progressBarValue, closeProgressBar=False)
         if not self.view_type == 0:
             if not self.wavefront_to_plot is None:
@@ -409,50 +410,4 @@ class OWWORealLens1D(OWWOOpticalElement1D):
 
                 self.progressBarFinished()
 
-
-if __name__ == '__main__':
-
-    from PyQt5.QtWidgets import QApplication
-
-    def create_wavefront():
-        #
-        # create input_wavefront
-        #
-        from wofry.propagator.wavefront1D.generic_wavefront import GenericWavefront1D
-        input_wavefront = GenericWavefront1D.initialize_wavefront_from_range(x_min=-0.0005, x_max=0.0005,
-                                                                             number_of_points=1000)
-        input_wavefront.set_photon_energy(10000)
-        input_wavefront.set_spherical_wave(radius=13.73, center=0, complex_amplitude=complex(1, 0))
-        return input_wavefront
-
-    def get_example_wofry_data():
-        from wofryimpl.propagator.light_source import WOLightSource
-        from wofryimpl.beamline.beamline import WOBeamline
-        from orangecontrib.wofry.util.wofry_objects import WofryData
-
-        light_source = WOLightSource(dimension=1,
-                                     kind_of_wave=1,
-                                     initialize_from=0,
-                                     range_from_h=-0.0005,
-                                     range_to_h=0.0005,
-                                     range_from_v=-0.0005,
-                                     range_to_v=0.0005,
-                                     number_of_points_h=1000,
-                                     number_of_points_v=1,
-                                     energy=10000.0,
-                                     radius=13.73,
-                                     )
-        return WofryData(wavefront=light_source.get_wavefront(),
-                           beamline=WOBeamline(light_source=light_source))
-
-    app = QApplication([])
-    ow = OWWORealLens1D()
-    # ow.set_input(create_wavefront())
-    ow.set_input(get_example_wofry_data())
-    # ow.receive_dabam_profile(numpy.array([[-1.50,0],[1.50,0]]))
-
-    ow.propagate_wavefront()
-
-    ow.show()
-    app.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)

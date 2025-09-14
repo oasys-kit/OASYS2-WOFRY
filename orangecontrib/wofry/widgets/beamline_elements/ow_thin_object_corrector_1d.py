@@ -1,12 +1,12 @@
 from orangewidget.settings import Setting
 from orangewidget import gui
 
-from oasys.widgets import gui as oasysgui
-from oasys.widgets import congruence
+from oasys2.widget import gui as oasysgui
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from wofryimpl.beamline.optical_elements.refractors.thin_object_corrector import WOThinObjectCorrector1D
 
-from orangecontrib.wofry.widgets.gui.ow_optical_element_1d import OWWOOpticalElement1D
+from orangecontrib.wofry.widgets.gui.ow_optical_element_1D import OWWOOpticalElement1D
 
 
 class OWWOThinObjectCorrector1D(OWWOOpticalElement1D):
@@ -38,11 +38,9 @@ class OWWOThinObjectCorrector1D(OWWOOpticalElement1D):
     file_with_thickness_mesh = Setting("profile1D.dat")
 
     def __init__(self):
-
         super().__init__(is_automatic=True, show_view_options=True, show_script_tab=True)
 
     def draw_specific_box(self):
-
         self.thinobject_box = oasysgui.widgetBox(self.tab_bas, "Thin Object Corrector 1D Setting", addSpace=False,
                                                  orientation="vertical",
                                                  height=350)
@@ -112,7 +110,6 @@ class OWWOThinObjectCorrector1D(OWWOOpticalElement1D):
             return materials_list[index]
 
     def get_optical_element(self):
-
         return WOThinObjectCorrector1D(name=self.oe_name,
                                        file_with_thickness_mesh_flag=self.file_with_thickness_mesh_flag,
                                        file_with_thickness_mesh=self.file_with_thickness_mesh,
@@ -139,7 +136,6 @@ class OWWOThinObjectCorrector1D(OWWOOpticalElement1D):
 
 
     def do_plot_results(self, progressBarValue=80): # OVERWRITTEN
-
         super().do_plot_results(progressBarValue)
         if not self.view_type == 0:
             if not self.wavefront_to_plot is None:
@@ -161,38 +157,4 @@ class OWWOThinObjectCorrector1D(OWWOOpticalElement1D):
 
                 self.progressBarFinished()
 
-
-
-
-if __name__ == "__main__":
-    import sys
-    from PyQt5.QtWidgets import QApplication
-
-
-    def get_example_wofry_data():
-        from wofryimpl.propagator.light_source import WOLightSource
-        from wofryimpl.beamline.beamline import WOBeamline
-        from orangecontrib.wofry.util.wofry_objects import WofryData
-
-        light_source = WOLightSource(dimension=1,
-                                     initialize_from=0,
-                                     range_from_h=-0.0002,
-                                     # range_to_h=0.0002,
-                                     # range_from_v=-0.0002,
-                                     range_to_v=0.0002,
-                                     number_of_points_h=400,
-                                     # number_of_points_v=200,
-                                     energy=10000.0,
-                                     )
-
-        return WofryData(wavefront=light_source.get_wavefront(),
-                         beamline=WOBeamline(light_source=light_source))
-
-
-    a = QApplication(sys.argv)
-    ow = OWWOThinObjectCorrector1D()
-    ow.set_input(get_example_wofry_data())
-
-    ow.show()
-    a.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)

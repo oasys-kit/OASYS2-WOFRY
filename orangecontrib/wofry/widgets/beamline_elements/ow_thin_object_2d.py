@@ -1,30 +1,29 @@
-from orangewidget.settings import Setting
 from orangewidget import gui
+from orangewidget.settings import Setting
+from orangewidget.widget import Input
 
-from oasys.widgets import gui as oasysgui
-from oasys.widgets import congruence
+from oasys2.widget import gui as oasysgui
+from oasys2.widget.util import congruence
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
-from oasys.util.oasys_objects import OasysSurfaceData
+from oasys2.widget.util.widget_objects import OasysSurfaceData
 
 from syned.widget.widget_decorator import WidgetDecorator
 
-from orangecontrib.wofry.util.wofry_objects import WofryData
-from orangecontrib.wofry.widgets.gui.ow_optical_element import OWWOOpticalElement
+from orangecontrib.wofry.widgets.gui.ow_optical_element_2D import OWWOOpticalElement2D
 
 from wofryimpl.beamline.optical_elements.refractors.thin_object import WOThinObject
 
-class OWWOThinObject2D(OWWOOpticalElement):
-
+class OWWOThinObject2D(OWWOOpticalElement2D):
     name = "ThinObject"
     description = "Wofry: Thin Object 2D"
     icon = "icons/thinb2d.png"
     priority = 47
 
-    inputs = [("WofryData", WofryData, "set_input"),
-              WidgetDecorator.syned_input_data()[0],
-              ("Surface Data", OasysSurfaceData, "set_input_surface_data")
-              ]
-
+    class Inputs:
+        wofry_data   = OWWOOpticalElement2D.Inputs.wofry_data
+        syned_data   = WidgetDecorator.syned_input_data(multi_input=True)
+        surface_data = Input("Surface Data", OasysSurfaceData, id="Surface Data", default=True, auto_summary=False)
 
     material = Setting(1)
     refraction_index_delta = Setting(5.3e-7)
@@ -34,7 +33,6 @@ class OWWOThinObject2D(OWWOOpticalElement):
     aperture_dimension_v = Setting(100e-6)
     aperture_dimension_h = Setting(200e-6)
 
-
     file_with_thickness_mesh = Setting("<none>")
 
     def __init__(self):
@@ -42,7 +40,6 @@ class OWWOThinObject2D(OWWOOpticalElement):
         super().__init__(is_automatic=True, show_view_options=True, show_script_tab=True)
 
     def draw_specific_box(self):
-
         self.thinobject_box = oasysgui.widgetBox(self.tab_bas, "Thin Object Setting", addSpace=False, orientation="vertical",
                                            height=350)
 
@@ -71,7 +68,6 @@ class OWWOThinObject2D(OWWOOpticalElement):
 
         self.set_visible()
 
-
     def set_visible(self):
         self.box_refraction_index_id.setVisible(self.material in [0])
         self.box_att_coefficient_id.setVisible(self.material in [0])
@@ -83,7 +79,6 @@ class OWWOThinObject2D(OWWOOpticalElement):
 
         self.le_beam_file_name.setText(filename)
 
-
     def get_material_name(self, index=None):
         materials_list = ["External", "Be", "Al", "Diamond"]
         if index is None:
@@ -92,7 +87,6 @@ class OWWOThinObject2D(OWWOOpticalElement):
             return materials_list[index]
 
     def get_optical_element(self):
-
         return WOThinObject(name=self.name,
                     file_with_thickness_mesh=self.file_with_thickness_mesh,
                     material=self.get_material_name(self.material),
@@ -104,9 +98,26 @@ class OWWOThinObject2D(OWWOOpticalElement):
         super().check_data()
         congruence.checkFileName(self.file_with_thickness_mesh)
 
+    @Inputs.wofry_data
+    def set_wofry_data(self, wofry_data):
+        super(OWWOThinObject2D, self).set_input(wofry_data)
+
+    @Inputs.syned_data
+    def set_syned_data(self, index, syned_data):
+        super(OWWOThinObject2D, self).receive_syned_data(syned_data)
+
+    @Inputs.syned_data.insert
+    def insert_syned_data(self, index, syned_data):
+        super(OWWOThinObject2D, self).receive_syned_data(syned_data)
+
+    @Inputs.syned_data.remove
+    def remove_syned_data(self, index):
+        pass
+
     def receive_specific_syned_data(self, optical_element):
         pass
 
+    @Inputs.surface_data
     def set_input_surface_data(self, surface_data):
         if isinstance(surface_data, OasysSurfaceData):
            self.file_with_thickness_mesh = surface_data.surface_data_file
@@ -159,42 +170,4 @@ class OWWOThinObject2D(OWWOOpticalElement):
                 self.progressBarFinished()
 
             
-
-if __name__ == "__main__":
-    import sys
-    from PyQt5.QtWidgets import QApplication
-    import requests
-
-    def get_example_wofry_data():
-        from wofryimpl.propagator.light_source import WOLightSource
-        from wofryimpl.beamline.beamline import WOBeamline
-        from orangecontrib.wofry.util.wofry_objects import WofryData
-
-        light_source = WOLightSource(dimension=2,
-                                     initialize_from=0,
-                                     range_from_h=-0.0003,
-                                     range_to_h=0.0003,
-                                     range_from_v=-0.0003,
-                                     range_to_v=0.0003,
-                                     number_of_points_h=400,
-                                     number_of_points_v=200,
-                                     energy=10000.0,
-                                     )
-
-        return WofryData(wavefront=light_source.get_wavefront(),
-                           beamline=WOBeamline(light_source=light_source))
-
-
-    url = 'https://raw.githubusercontent.com/oasys-esrf-kit/dabam2d/main/data/dabam2d-001.h5'
-    response = requests.get(url)
-    open("dabam2d-001.h5", "wb").write(response.content)
-
-    a = QApplication(sys.argv)
-    ow = OWWOThinObject2D()
-    ow.file_with_thickness_mesh = "dabam2d-001.h5"
-    ow.set_input(get_example_wofry_data())
-
-
-    ow.show()
-    a.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)

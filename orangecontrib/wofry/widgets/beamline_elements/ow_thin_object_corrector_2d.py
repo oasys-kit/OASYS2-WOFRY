@@ -1,15 +1,13 @@
 from orangewidget.settings import Setting
 from orangewidget import gui
 
-from oasys.widgets import gui as oasysgui
-from oasys.widgets import congruence
+from oasys2.widget import gui as oasysgui
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from wofryimpl.beamline.optical_elements.refractors.thin_object_corrector import WOThinObjectCorrector
+from orangecontrib.wofry.widgets.gui.ow_optical_element_2D import OWWOOpticalElement2D
 
-from orangecontrib.wofry.widgets.gui.ow_optical_element import OWWOOpticalElement
-
-
-class OWWOThinObjectCorrector2D(OWWOOpticalElement):
+class OWWOThinObjectCorrector2D(OWWOOpticalElement2D):
 
     name = "ThinObjectCorrector2D"
     description = "Wofry: Thin Object Corrector 2D"
@@ -167,35 +165,4 @@ class OWWOThinObjectCorrector2D(OWWOOpticalElement):
                 self.progressBarFinished()
             
 
-if __name__ == "__main__":
-    import sys
-    from PyQt5.QtWidgets import QApplication
-
-    def get_example_wofry_data():
-        from wofryimpl.propagator.light_source import WOLightSource
-        from wofryimpl.beamline.beamline import WOBeamline
-        from orangecontrib.wofry.util.wofry_objects import WofryData
-
-        light_source = WOLightSource(dimension=2,
-                                     initialize_from=0,
-                                     range_from_h=-0.0002,
-                                     range_to_h=0.0002,
-                                     range_from_v=-0.0002,
-                                     range_to_v=0.0002,
-                                     number_of_points_h=400,
-                                     number_of_points_v=200,
-                                     energy=10000.0,
-                                     )
-
-        return WofryData(wavefront=light_source.get_wavefront(),
-                           beamline=WOBeamline(light_source=light_source))
-
-
-    a = QApplication(sys.argv)
-    ow = OWWOThinObjectCorrector2D()
-    ow.set_input(get_example_wofry_data())
-
-
-    ow.show()
-    a.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)

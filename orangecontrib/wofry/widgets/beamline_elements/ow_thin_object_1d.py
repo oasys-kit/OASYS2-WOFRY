@@ -2,21 +2,19 @@ import numpy
 
 from PyQt5.QtWidgets import QMessageBox, QLabel, QSizePolicy
 
-from orangewidget.settings import Setting
 from orangewidget import gui
+from orangewidget.settings import Setting
+from orangewidget.widget import Input
 
-from oasys.widgets import gui as oasysgui
-from oasys.widgets import congruence
-from oasys.util.oasys_util import TriggerIn, TriggerOut, EmittingStream
-
+from oasys2.widget import gui as oasysgui
+from oasys2.widget.util import congruence
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
+from oasys2.widget.util.widget_objects import TriggerOut
 
 from syned.widget.widget_decorator import WidgetDecorator
 
-from orangecontrib.wofry.util.wofry_objects import WofryData
-
-from orangecontrib.wofry.widgets.gui.ow_optical_element_1d import OWWOOpticalElement1D
+from orangecontrib.wofry.widgets.gui.ow_optical_element_1D import OWWOOpticalElement1D
 from wofryimpl.beamline.optical_elements.refractors.thin_object import WOThinObject1D #TODO from wofryimpl....
-
 
 
 class OWWOThinObject1D(OWWOOpticalElement1D):
@@ -26,10 +24,11 @@ class OWWOThinObject1D(OWWOOpticalElement1D):
     icon = "icons/thinb1d.png"
     priority = 27
 
-    inputs = [("WofryData", WofryData, "set_input"),
-              ("DABAM 1D Profile", numpy.ndarray, "receive_dabam_profile"),
-              ("Trigger", TriggerOut, "receive_trigger_signal"),
-              WidgetDecorator.syned_input_data()[0]]
+    class Inputs:
+        wofry_data           = OWWOOpticalElement1D.Inputs.wofry_data
+        dabam_profile        = Input("DABAM 1D Profile", numpy.ndarray, default=True, auto_summary=False)
+        trigger              = Input("Trigger", TriggerOut, id="Trigger", default=True, auto_summary=False)
+        syned_data           = WidgetDecorator.syned_input_data(multi_input=True)
 
     material = Setting(1)
     refraction_index_delta = Setting(5.3e-7)
@@ -99,7 +98,6 @@ class OWWOThinObject1D(OWWOOpticalElement1D):
             return materials_list[index]
 
     def get_optical_element(self):
-
         return WOThinObject1D(name=self.oe_name,
                     file_with_thickness_mesh=self.file_with_thickness_mesh,
                     material=self.get_material_name(self.material),
@@ -110,9 +108,26 @@ class OWWOThinObject1D(OWWOOpticalElement1D):
         super().check_data()
         congruence.checkFileName(self.file_with_thickness_mesh)
 
+    @Inputs.wofry_data
+    def set_wofry_data(self, wofry_data):
+        super(OWWOThinObject1D, self).set_input(wofry_data)
+
+    @Inputs.syned_data
+    def set_syned_data(self, index, syned_data):
+        super(OWWOThinObject1D, self).receive_syned_data(syned_data)
+
+    @Inputs.syned_data.insert
+    def insert_syned_data(self, index, syned_data):
+        super(OWWOThinObject1D, self).receive_syned_data(syned_data)
+
+    @Inputs.syned_data.remove
+    def remove_syned_data(self, index):
+        pass
+
     def receive_specific_syned_data(self, optical_element):
         pass
 
+    @Inputs.dabam_profile
     def receive_dabam_profile(self, dabam_profile):
         if not dabam_profile is None:
             try:
@@ -133,8 +148,8 @@ class OWWOThinObject1D(OWWOOpticalElement1D):
 
                 if self.IS_DEVELOP: raise exception
 
+    @Inputs.trigger
     def receive_trigger_signal(self, trigger):
-
         if trigger and trigger.new_object == True:
             if trigger.has_additional_parameter("variable_name"):
                 variable_name = trigger.get_additional_parameter("variable_name").strip()
@@ -152,8 +167,6 @@ class OWWOThinObject1D(OWWOOpticalElement1D):
 
                 self.propagate_wavefront()
 
-
-
     #
     # overwritten methods to append profile plot
     #
@@ -162,7 +175,6 @@ class OWWOThinObject1D(OWWOOpticalElement1D):
         titles = super().get_titles()
         titles.append("O.E. Profile")
         return titles
-
 
     def do_plot_results(self, progressBarValue=80): # OVERWRITTEN
 
@@ -187,37 +199,4 @@ class OWWOThinObject1D(OWWOOpticalElement1D):
 
                 self.progressBarFinished()
 
-if __name__ == "__main__":
-    import sys
-    from PyQt5.QtWidgets import QApplication
-
-    def get_example_wofry_data():
-        from wofryimpl.propagator.light_source import WOLightSource
-        from wofryimpl.beamline.beamline import WOBeamline
-        from orangecontrib.wofry.util.wofry_objects import WofryData
-
-        light_source = WOLightSource(dimension=1,
-                                     initialize_from=0,
-                                     range_from_h=-0.0003,
-                                     range_to_h=0.0003,
-                                     # range_from_v=-0.0003,
-                                     # range_to_v=0.0003,
-                                     number_of_points_h=400,
-                                     # number_of_points_v=200,
-                                     energy=10000.0,
-                                     )
-
-        return WofryData(wavefront=light_source.get_wavefront(),
-                           beamline=WOBeamline(light_source=light_source))
-
-
-
-    a = QApplication(sys.argv)
-    ow = OWWOThinObject1D()
-    ow.file_with_thickness_mesh = "/users/srio/Oasys/dabam_profile_139821049876720.dat"
-    ow.set_input(get_example_wofry_data())
-
-
-    ow.show()
-    a.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)

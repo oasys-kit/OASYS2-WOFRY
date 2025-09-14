@@ -5,12 +5,13 @@ from PyQt5.QtWidgets import QMessageBox
 
 from orangewidget import gui
 from orangewidget.settings import Setting
+from orangewidget.widget import Input
 
-from oasys.widgets import gui as oasysgui
-from oasys.widgets import congruence
-from oasys.util.oasys_util import TriggerIn, EmittingStream
-
-
+from oasys2.widget import gui as oasysgui
+from oasys2.widget.util import congruence
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
+from oasys2.widget.util.widget_objects import TriggerIn, TriggerOut
+from oasys2.widget.util.widget_util import EmittingStream
 
 from syned.beamline.element_coordinates import ElementCoordinates
 from syned.beamline.beamline_element import BeamlineElement
@@ -19,10 +20,8 @@ from syned.widget.widget_decorator import WidgetDecorator
 from wofry.propagator.wavefront1D.generic_wavefront import GenericWavefront1D
 
 from orangecontrib.wofry.util.wofry_objects import WofryData
-from orangecontrib.wofry.widgets.gui.ow_optical_element_1d import OWWOOpticalElement1D
+from orangecontrib.wofry.widgets.gui.ow_optical_element_1D import OWWOOpticalElement1D
 from wofryimpl.beamline.optical_elements.mirrors.mirror import WOMirror1D
-
-
 
 class OWMirror1D(OWWOOpticalElement1D):
 
@@ -35,19 +34,12 @@ class OWMirror1D(OWWOOpticalElement1D):
     category = "Wofry Wavefront Propagation"
     keywords = ["data", "file", "load", "read", "grazing"]
 
-    outputs = [{"name":"WofryData",
-                "type":WofryData,
-                "doc":"WofryData",
-                "id":"WofryData"},
-               {"name":"Trigger",
-                "type": TriggerIn,
-                "doc":"Feedback signal to start a new beam simulation",
-                "id":"Trigger"}]
-
-    inputs = [("WofryData", WofryData, "set_input"),
-              ("GenericWavefront1D", GenericWavefront1D, "set_input"),
-              ("DABAM 1D Profile", numpy.ndarray, "receive_dabam_profile"),
-              WidgetDecorator.syned_input_data()[0]]
+    class Inputs:
+        wofry_data           = OWWOOpticalElement1D.Inputs.wofry_data
+        generic_wavefront_1D = Input("GenericWavefront1D", GenericWavefront1D, default=True, auto_summary=False)
+        dabam_profile        = Input("DABAM 1D Profile", numpy.ndarray, default=True, auto_summary=False)
+        trigger              = Input("Trigger", TriggerOut, id="Trigger", default=True, auto_summary=False)
+        syned_data           = WidgetDecorator.syned_input_data(multi_input=True)
 
     grazing_angle_in = Setting(1.5e-3)
 
@@ -62,7 +54,6 @@ class OWMirror1D(OWWOOpticalElement1D):
     mirror_points = Setting(500)
     write_profile = Setting(0)
     write_input_wavefront = Setting(0)
-
 
     input_data = None
     titles = ["Wavefront 1D Intensity", "Wavefront 1D Phase","Wavefront Real(Amplitude)","Wavefront Imag(Amplitude)","O.E. Profile"]
@@ -117,8 +108,6 @@ class OWMirror1D(OWWOOpticalElement1D):
 
         self.set_visible()
 
-
-
     def set_visible(self):
         self.file_box_id.setVisible(self.error_flag)
         self.box_focal_id.setVisible(self.shape)
@@ -134,8 +123,28 @@ class OWMirror1D(OWWOOpticalElement1D):
         self.error_file = congruence.checkFileName(self.error_file)
         self.error_file_oversampling_factor = congruence.checkStrictlyPositiveNumber(self.error_file_oversampling_factor)
 
+    @Inputs.syned_data
+    def set_syned_data(self, index, syned_data):
+        self.receive_syned_data(syned_data)
+
+    @Inputs.syned_data.insert
+    def insert_syned_data(self, index, syned_data):
+        self.receive_syned_data(syned_data)
+
+    @Inputs.syned_data.remove
+    def remove_syned_data(self, index):
+        pass
+
     def receive_syned_data(self):
-        raise Exception(NotImplementedError)
+        raise NotImplementedError("Not implemented, yet")
+
+    @Inputs.wofry_data
+    def set_wofry_data(self, wofry_data):
+        self.set_input(wofry_data)
+
+    @Inputs.generic_wavefront
+    def set_generic_wavefront(self, generic_wavefront):
+        self.set_input(generic_wavefront)
 
     def set_input(self, wofry_data):
         if not wofry_data is None:
@@ -147,6 +156,7 @@ class OWMirror1D(OWWOOpticalElement1D):
             if self.is_automatic_execution:
                 self.propagate_wavefront()
 
+    @Inputs.dabam_profile
     def receive_dabam_profile(self, dabam_profile):
         if not dabam_profile is None:
             try:
@@ -168,6 +178,11 @@ class OWMirror1D(OWWOOpticalElement1D):
                 QMessageBox.critical(self, "Error", exception.args[0], QMessageBox.Ok)
 
                 if self.IS_DEVELOP: raise exception
+
+    @Inputs.trigger
+    def propagate_new_wavefront(self, trigger):
+        super(OWMirror1D, self).propagate_new_wavefront(trigger)
+
 
     def get_optical_element(self):
         if self.error_flag == 0:
@@ -237,9 +252,8 @@ class OWMirror1D(OWWOOpticalElement1D):
         else:
             self.progressBarFinished()
 
-        self.send("WofryData", WofryData(beamline=beamline, wavefront=output_wavefront))
-        self.send("Trigger", TriggerIn(new_object=True))
-
+        self.Outputs.wofry_data.send(WofryData(beamline=beamline, wavefront=output_wavefront))
+        self.Outputs.trigger.send(TriggerIn(new_object=True))
 
         self.wofry_python_script.set_code(beamline.to_python_code())
 
@@ -298,37 +312,9 @@ class OWMirror1D(OWWOOpticalElement1D):
                                  xtitle="Spatial Coordinate along o.e. [m]",
                                  ytitle="Intensity")
 
-
-
                 self.plot_canvas[0].resetZoom()
-
 
                 self.progressBarFinished()
 
 
-if __name__ == '__main__':
-
-    from PyQt5.QtWidgets import QApplication
-
-
-    def create_wavefront():
-        #
-        # create input_wavefront
-        #
-        from wofry.propagator.wavefront1D.generic_wavefront import GenericWavefront1D
-        input_wavefront = GenericWavefront1D.initialize_wavefront_from_range(x_min=-0.00147, x_max=0.00147,
-                                                                             number_of_points=1000)
-        input_wavefront.set_photon_energy(250)
-        input_wavefront.set_spherical_wave(radius=13.73, center=0, complex_amplitude=complex(1, 0))
-        return input_wavefront
-
-    app = QApplication([])
-    ow = OWMirror1D()
-    ow.set_input(create_wavefront())
-
-    # ow.receive_dabam_profile(numpy.array([[1,2],[3,4]]))
-    ow.propagate_wavefront()
-
-    ow.show()
-    app.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)

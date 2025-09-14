@@ -1,13 +1,14 @@
 import numpy
 from orangewidget.settings import Setting
-from oasys.widgets import gui as oasysgui
-from oasys.widgets import congruence
+from oasys2.widget import gui as oasysgui
+from oasys2.widget.util import congruence
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from syned.beamline.optical_elements.ideal_elements.ideal_lens import IdealLens
 
 from wofryimpl.beamline.optical_elements.ideal_elements.ideal_lens import WOIdealLens1D
 
-from orangecontrib.wofry.widgets.gui.ow_optical_element_1d import OWWOOpticalElement1D
+from orangecontrib.wofry.widgets.gui.ow_optical_element_1D import OWWOOpticalElement1D
 
 class OWWOIdealLens1D(OWWOOpticalElement1D):
 
@@ -37,7 +38,6 @@ class OWWOIdealLens1D(OWWOOpticalElement1D):
 
         congruence.checkStrictlyPositiveNumber(numpy.abs(self.focal_x), "Horizontal Focal Length")
 
-
     def receive_specific_syned_data(self, optical_element):
         if not optical_element is None:
             if isinstance(optical_element, IdealLens):
@@ -47,30 +47,4 @@ class OWWOIdealLens1D(OWWOOpticalElement1D):
         else:
             raise Exception("Syned Data not correct: Empty Optical Element")
 
-if __name__ == "__main__":
-    import sys
-    from PyQt5.QtWidgets import QApplication
-
-    def get_example_wofry_data():
-        from wofryimpl.propagator.light_source import WOLightSource
-        from wofryimpl.beamline.beamline import WOBeamline
-        from orangecontrib.wofry.util.wofry_objects import WofryData
-
-        light_source = WOLightSource(dimension=1,
-                                     initialize_from=0,
-                                     range_from_h=-0.001,
-                                     range_to_h=0.001,
-                                     number_of_points_h=500,
-                                     energy=10000.0,
-                                     )
-
-        return WofryData(wavefront=light_source.get_wavefront(),
-                           beamline=WOBeamline(light_source=light_source))
-
-    a = QApplication(sys.argv)
-    ow = OWWOIdealLens1D()
-    ow.set_input(get_example_wofry_data())
-
-    ow.show()
-    a.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)

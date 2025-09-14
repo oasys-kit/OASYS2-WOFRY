@@ -52,7 +52,7 @@ class OWWOOpticalElement1D(WofryWidget, WidgetDecorator):
 
     class Outputs:
         wofry_data = Output("WofryData", WofryData, id="WofryData", default=True, auto_summary=False)
-        trigger  = Output("Trigger", TriggerIn, id="Trigger", default=True, auto_summary=False)
+        trigger    = Output("Trigger", TriggerIn, id="Trigger", default=True, auto_summary=False)
 
 
     oe_name         = Setting("")
@@ -133,7 +133,6 @@ class OWWOOpticalElement1D(WofryWidget, WidgetDecorator):
         self.draw_specific_box()
 
         self.create_propagation_setting_tab()
-
 
     def create_propagation_setting_tab(self):
 
@@ -350,8 +349,8 @@ class OWWOOpticalElement1D(WofryWidget, WidgetDecorator):
             else:
                 self.progressBarFinished()
 
-            self.send("WofryData", WofryData(beamline=beamline, wavefront=output_wavefront))
-            self.send("Trigger", TriggerIn(new_object=True))
+            self.Outputs.wofry_data.send(WofryData(beamline=beamline, wavefront=output_wavefront))
+            self.Outputs.trigger.send(TriggerIn(new_object=True))
 
             self.wofry_python_script.set_code(beamline.to_python_code())
 
