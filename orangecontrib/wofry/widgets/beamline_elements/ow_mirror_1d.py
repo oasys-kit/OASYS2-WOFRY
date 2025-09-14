@@ -142,8 +142,8 @@ class OWMirror1D(OWWOOpticalElement1D):
     def set_wofry_data(self, wofry_data):
         self.set_input(wofry_data)
 
-    @Inputs.generic_wavefront
-    def set_generic_wavefront(self, generic_wavefront):
+    @Inputs.generic_wavefront_1D
+    def generic_wavefront_1D(self, generic_wavefront):
         self.set_input(generic_wavefront)
 
     def set_input(self, wofry_data):
