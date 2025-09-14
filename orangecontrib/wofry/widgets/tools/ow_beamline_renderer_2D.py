@@ -47,6 +47,9 @@
 
 import numpy
 
+from orangewidget.widget import Input
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
+
 from wofry.propagator.wavefront2D.generic_wavefront import GenericWavefront2D
 from wofryimpl.beamline.optical_elements.absorbers.slit import WOSlit
 from wofryimpl.beamline.optical_elements.absorbers.beam_stopper import WOBeamStopper
@@ -68,13 +71,15 @@ class BeamlineRenderer2D(AbstractBeamlineRenderer):
     category = "Utility"
     keywords = ["data", "file", "load", "read"]
 
-    inputs = [("WofryData", WofryData, "set_input")]
+    class Inputs:
+        wofry_data = Input("WofryData", WofryData, default=True, auto_summary=False)
 
     wofry_data = None
 
     def __init__(self):
-        super(BeamlineRenderer2D, self).__init__(is_using_workspace_units=False)
+        super(BeamlineRenderer2D, self).__init__()
 
+    @Inputs.wofry_data
     def set_input(self, input_data):
         self.setStatusMessage("")
 
@@ -176,3 +181,4 @@ class BeamlineRenderer2D(AbstractBeamlineRenderer):
 
             return number_of_elements, centers, limits
 
+add_widget_parameters_to_module(__name__)

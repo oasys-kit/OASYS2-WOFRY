@@ -6,7 +6,9 @@ from PyQt5.QtGui import QPalette, QColor, QFont
 from PyQt5.QtWidgets import QMessageBox
 from orangewidget import gui
 from orangewidget.settings import Setting
-from oasys.widgets import gui as oasysgui
+from orangewidget.widget import Input
+from oasys2.widget import gui as oasysgui
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from orangecontrib.wofry.util.wofry_objects import WofryData
 from orangecontrib.wofry.widgets.gui.ow_wofry_widget import WofryWidget
@@ -22,7 +24,8 @@ class GenericWavefrontViewer1D(WofryWidget):
     category = "Wofry Tools"
     keywords = ["data", "file", "load", "read"]
 
-    inputs = [("WofryData", WofryData, "set_input")]
+    class Inputs:
+        wofry_data = Input("WofryData", WofryData, default=True, auto_summary=False)
 
     wofry_data = None
     accumulated_data = None
@@ -46,8 +49,6 @@ class GenericWavefrontViewer1D(WofryWidget):
         button.setPalette(palette) # assign new palette
         button.setFixedHeight(45)
 
-
-
         gui.separator(self.controlArea)
 
         self.controlArea.setFixedWidth(self.CONTROL_AREA_WIDTH)
@@ -63,7 +64,7 @@ class GenericWavefrontViewer1D(WofryWidget):
         gui.comboBox(incremental_box, self, "keep_result",
                     label="Keep results", addSpace=False,
                     items=['No','Accumulate intensity','Accumulate electric field'],
-                    valueType=int, orientation="horizontal", callback=self.refresh)
+                    orientation="horizontal", callback=self.refresh)
         # gui.checkBox(incremental_box, self, "keep_result", "Keep Result")
         gui.button(incremental_box, self, "Clear", callback=self.reset_accumumation)
 
@@ -73,7 +74,7 @@ class GenericWavefrontViewer1D(WofryWidget):
         gui.comboBox(amplitude_and_phase_box, self, "phase_unwrap",
                     label="Phase unwrap ", addSpace=False,
                     items=['No','Yes'],
-                    valueType=int, orientation="horizontal", callback=self.refresh)
+                    orientation="horizontal", callback=self.refresh)
 
     def initializeTabs(self):
         size = len(self.tab)
@@ -104,7 +105,7 @@ class GenericWavefrontViewer1D(WofryWidget):
             tab.setFixedHeight(self.IMAGE_HEIGHT)
             tab.setFixedWidth(self.IMAGE_WIDTH)
 
-
+    @Inputs.wofry_data
     def set_input(self, wofry_data):
         if not wofry_data is None:
             self.wofry_data = wofry_data
@@ -124,7 +125,6 @@ class GenericWavefrontViewer1D(WofryWidget):
                 self.accumulated_data["counter"] += 1
                 self.accumulated_data["intensity"] += self.wofry_data.get_wavefront().get_intensity()
                 self.accumulated_data["complex_amplitude"] += self.wofry_data.get_wavefront().get_complex_amplitude()
-
 
             self.refresh()
 
@@ -210,18 +210,4 @@ class GenericWavefrontViewer1D(WofryWidget):
         self.accumulated_data = None
         self.wofry_data = None
 
-if __name__ == '__main__':
-
-    from wofry.propagator.wavefront1D.generic_wavefront import GenericWavefront1D
-    from PyQt5.QtWidgets import QApplication
-
-    app = QApplication([])
-    ow =GenericWavefrontViewer1D()
-
-    wf = GenericWavefront1D.initialize_wavefront_from_arrays(numpy.linspace(-1e-3,1e-3,300),
-                                                             numpy.linspace(-1e-3,1e-3,300)**2 )
-
-    ow.set_input(WofryData(wavefront=wf))
-    ow.show()
-    app.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)

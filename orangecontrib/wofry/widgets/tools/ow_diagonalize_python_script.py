@@ -1,25 +1,27 @@
 import sys
 from PyQt5.QtGui import QPalette, QColor, QFont
-from PyQt5.QtWidgets import QApplication, QFileDialog
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QRect
 from PyQt5.QtGui import QTextCursor
 
 from orangewidget import gui
 from orangewidget.settings import Setting
 
-from oasys.widgets import gui as oasysgui
-from oasys.widgets import widget
-from oasys.util.oasys_util import TriggerIn, TriggerOut, EmittingStream
+from orangewidget import gui
+from orangewidget.widget import Input, Output
+from oasys2.widget.widget import OWWidget
+from oasys2.widget import gui as oasysgui
+from oasys2.widget.util.widget_util import EmittingStream
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from orangecontrib.wofry.util.wofry_objects import WofryData
 from orangecontrib.wofry.widgets.gui.python_script import PythonConsole
 
 from wofryimpl.propagator.light_source import WOLightSource
 from wofryimpl.propagator.light_source_cmd import WOLightSourceCMD
+from wofryimpl.propagator.util.tally import TallyCoherentModes
 
-
-class DiagonalizePythonScript(widget.OWWidget):
-
+class DiagonalizePythonScript(OWWidget):
     name = "Diagonalize Python Script"
     description = "Diagonalize Python Script"
     icon = "icons/diagonalize_python_script.png"
@@ -29,14 +31,11 @@ class DiagonalizePythonScript(widget.OWWidget):
     category = "Tools"
     keywords = ["script"]
 
-    inputs = [("WofryData", WofryData, "set_input")]
+    class Inputs:
+        wofry_data  = Input("WofryData", WofryData, default=True, auto_summary=False)
 
-    outputs = [
-               {"name":"WofryData",
-                "type":WofryData,
-                "doc":"WofryData",
-                "id":"WofryData"}
-                ]
+    class Outputs:
+        tally_coherent_modes = Output("Diagonalized Coherent Modes", TallyCoherentModes, id="TallyCoherentModes", default=True, auto_summary=False)
 
     mode_index_max = Setting(10)
 
@@ -68,8 +67,7 @@ class DiagonalizePythonScript(widget.OWWidget):
     input_data = None
 
     def __init__(self, show_automatic_box=True, show_general_option_box=True):
-        super().__init__() # show_automatic_box=show_automatic_box)
-
+        super().__init__()
 
         geom = QApplication.desktop().availableGeometry()
         self.setGeometry(QRect(round(geom.width()*0.05),
@@ -85,9 +83,7 @@ class DiagonalizePythonScript(widget.OWWidget):
         self.general_options_box = gui.widgetBox(self.controlArea, "General Options", addSpace=True, orientation="horizontal")
         self.general_options_box.setVisible(show_general_option_box)
 
-        if show_automatic_box :
-            gui.checkBox(self.general_options_box, self, 'is_automatic_run', 'Automatic Execution')
-
+        if show_automatic_box : gui.checkBox(self.general_options_box, self, 'is_automatic_run', 'Automatic Execution')
 
         #
         #
@@ -175,6 +171,7 @@ class DiagonalizePythonScript(widget.OWWidget):
 
         self.process_showers()
 
+    @Inputs.wofry_data
     def set_input(self, wofry_data):
         if not wofry_data is None:
             if isinstance(wofry_data, WofryData):
@@ -196,6 +193,10 @@ class DiagonalizePythonScript(widget.OWWidget):
         self.console.push("exec(_script)")
         self.console.new_prompt(sys.ps1)
 
+        tally_coherent_modes = self.console.locals.get("tally_coherent_modes")
+
+        if not tally_coherent_modes is None:
+            self.Outputs.tally_coherent_modes.send(tally_coherent_modes)
 
     def save_script(self):
         file_name = self.script_file_name
@@ -205,9 +206,7 @@ class DiagonalizePythonScript(widget.OWWidget):
                 file.write(str(self.pythonScript.toPlainText()))
                 file.close()
 
-
     def refresh_script(self):
-
         self.wofry_output.setText("")
 
         sys.stdout = EmittingStream(textWritten=self.writeStdOut)
@@ -296,10 +295,8 @@ def to_python_code(self, # self is beamline
     if self.get_beamline_elements_number() > 0:
         beamline_text_code += "\n\n\n##########  OPTICAL SYSTEM ##########\n\n\n"
 
-
         for index in range(self.get_beamline_elements_number()):
             beamline_text_code += "\n\n\n##########  OPTICAL ELEMENT NUMBER %i ##########\n\n\n" % (index+1)
-            oe_name = "oe_" + str(index)
             beamline_element = self.get_beamline_element_at(index)
             optical_element = beamline_element.get_optical_element()
             coordinates = beamline_element.get_coordinates()
@@ -411,7 +408,6 @@ def to_python_code(self, # self is beamline
     full_text_code += "\n" + indent * 2 + "tally.append(output_wavefront)"
     full_text_code += "\n" + indent + ""
 
-
     if graph_file_flag == 0:
         dump_file = ""
     elif graph_file_flag == 1:
@@ -441,15 +437,11 @@ def to_python_code(self, # self is beamline
         full_text_code += "\n\n" + indent + 'tally.save_spectral_density(filename="%s_spectral_density.dat")' % (root_file_name)
         full_text_code += "\n" + indent + 'tally.save_occupation(filename="%s_occupation.dat")' % (root_file_name)
 
+    full_text_code += "\n\n" + indent + "return tally"
+
+
     full_text_code += "\n\n\n#\n# MAIN========================\n#\n\n"
-    full_text_code += "\n\n\nmain()"
+    full_text_code += "\n\n\ntally_coherent_modes = main()"
     return full_text_code
 
-
-if __name__ == "__main__":
-
-    a = QApplication(sys.argv)
-    ow = DiagonalizePythonScript()
-    ow.show()
-    a.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)

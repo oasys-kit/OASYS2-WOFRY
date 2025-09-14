@@ -5,7 +5,9 @@ import numpy
 from PyQt5.QtGui import QPalette, QColor, QFont
 from orangewidget import gui
 from orangewidget.settings import Setting
-from oasys.widgets import gui as oasysgui
+from orangewidget.widget import Input
+from oasys2.widget import gui as oasysgui
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from orangecontrib.wofry.util.wofry_objects import WofryData
 from orangecontrib.wofry.widgets.gui.ow_wofry_widget import WofryWidget
@@ -21,7 +23,8 @@ class GenericWavefrontViewer2D(WofryWidget):
     category = ""
     keywords = ["data", "file", "load", "read"]
 
-    inputs = [("WofryData", WofryData, "set_input")]
+    class Inputs:
+        wofry_data = Input("WofryData", WofryData, default=True, auto_summary=False)
 
     wavefront2D = None
     accumulated_data = None
@@ -74,7 +77,7 @@ class GenericWavefrontViewer2D(WofryWidget):
         gui.comboBox(self.tab_sou, self, "phase_unwrap",
                     label="Phase unwrap ", addSpace=False,
                     items=['No','H only','V only','First H, then V','First V then H'],
-                    valueType=int, orientation="horizontal", callback=self.refresh)
+                    orientation="horizontal", callback=self.refresh)
 
 
     def initializeTabs(self):
@@ -108,7 +111,6 @@ class GenericWavefrontViewer2D(WofryWidget):
 
 
     def crossSpectralDensityHV(self):
-
         WF = self.wavefront2D.get_complex_amplitude()
         imodeX = WF[:,int(0.5*WF.shape[1])]
         imodeY = WF[int(0.5*WF.shape[0]),:]
@@ -119,8 +121,8 @@ class GenericWavefrontViewer2D(WofryWidget):
 
         return Wx1x2,Wy1y2
 
+    @Inputs.wofry_data
     def set_input(self, wofry_data):
-
         if not wofry_data is None:
             if not self.keep_result:
                 self.reset_accumumation()
@@ -160,12 +162,9 @@ class GenericWavefrontViewer2D(WofryWidget):
         self.tabs.setCurrentIndex(current_index)
 
     def do_plot_results(self, progressBarValue):
-
-
         if self.accumulated_data is None:
             return
         else:
-
             self.progressBarInit()
             self.progressBarSet(progressBarValue)
 
@@ -188,7 +187,6 @@ class GenericWavefrontViewer2D(WofryWidget):
                 if not(self.keep_result):
                     self.wofry_output.setText("")
                 self.writeStdOut(txt)
-
 
             if self.plot_phase:
                 tabs_canvas_index += 1
@@ -251,15 +249,11 @@ class GenericWavefrontViewer2D(WofryWidget):
                                  xrange=[-1,1+self.accumulated_data["counter"]],
                                  symbol='o')
 
-
                 self.writeStdOut(txt)
-
 
             self.progressBarFinished()
 
     def get_data_iterations(self):
-
-
         x = numpy.arange(self.accumulated_data["counter"])
         y = numpy.array(self.accumulated_data["iteration_intensities"])
 
@@ -272,43 +266,15 @@ class GenericWavefrontViewer2D(WofryWidget):
         txt += "  Mean intensity: %g\n"%(y.mean())
         txt += "  Standard deviation intensity: %g\n"%(y.std())
 
-
         txt += "\n"
 
         return x,y,txt
 
     def reset_accumumation(self):
-
         self.initializeTabs()
         self.accumulated_data = None
         self.wavefront2D = None
 
         self.wofry_output.setText("")
 
-if __name__ == '__main__':
-
-    from PyQt5.QtWidgets import QApplication
-
-
-    app = QApplication([])
-    ow = GenericWavefrontViewer2D()
-
-
-    # from orangecontrib.comsyl.util.CompactAFReader import CompactAFReader
-    # filename_np = "/users/srio/COMSYLD/comsyl/comsyl/calculations/septest_cm_new_u18_2m_1h_s2.5.npz"
-    # af = CompactAFReader.initialize_from_file(filename_np)
-    # wf = GenericWavefront2D.initialize_wavefront_from_arrays(af.x_coordinates(),
-    #                                                          af.y_coordinates(),
-    #                                                          af.mode(0))
-    # wf.set_photon_energy(af.photon_energy())
-
-    from wofry.propagator.wavefront2D.generic_wavefront import GenericWavefront2D
-    from orangecontrib.wofry.util.wofry_objects import WofryData
-    wf = GenericWavefront2D.initialize_wavefront_from_range(-1e-3,1e-3,-1e-3,1e-3,(200,200))
-    wf.set_gaussian(1e-4,1e-4)
-
-
-    ow.set_input(WofryData(wavefront=wf))
-    ow.show()
-    app.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)

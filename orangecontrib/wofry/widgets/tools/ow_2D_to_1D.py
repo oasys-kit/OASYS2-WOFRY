@@ -2,9 +2,11 @@ __author__ = 'labx'
 
 from PyQt5.QtGui import QPalette, QColor, QFont
 from orangewidget import gui
-from orangewidget import widget
 from orangewidget.settings import Setting
-from oasys.widgets import gui as oasysgui
+from orangewidget.widget import Input, Output
+from oasys2.widget.widget import OWAction
+from oasys2.widget import gui as oasysgui
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from wofry.propagator.wavefront1D.generic_wavefront import GenericWavefront1D
 from wofry.propagator.wavefront2D.generic_wavefront import GenericWavefront2D
@@ -23,18 +25,14 @@ class OW2Dto1D(WofryWidget):
     category = "Wofry Tools"
     keywords = ["data", "file", "load", "read"]
 
-    inputs = [("WofryData", WofryData, "set_input"),
-              ("GenericWavefront2D", GenericWavefront2D, "set_input")]
+    class Inputs:
+        wofry_data           = Input("WofryData", WofryData, default=True, auto_summary=False)
+        generic_wavefront_2D = Input("GenericWavefront2D", GenericWavefront2D, default=True, auto_summary=False)
 
-    outputs = [{"name":"WofryData",
-                "type":WofryData,
-                "doc":"WofryData",
-                "id":"WofryData"},
-               {"name": "GenericWavefront1D",
-                "type": GenericWavefront1D,
-                "doc": "GenericWavefront1D",
-                "id": "GenericWavefront1D"}
-               ]
+    class Outputs:
+        wofry_data           = Output("WofryData", WofryData, id="WofryData", default=True, auto_summary=False)
+        generic_wavefront_1D = Output("GenericWavefront1D", GenericWavefront1D, default=True, auto_summary=False)
+
 
     section_axis  = Setting(0)
     section_coordinate = Setting(0.0)
@@ -44,7 +42,7 @@ class OW2Dto1D(WofryWidget):
     def __init__(self):
         super().__init__(is_automatic=True, show_script_tab=False)
 
-        self.runaction = widget.OWAction("Send Data", self)
+        self.runaction = OWAction("Send Data", self)
         self.runaction.triggered.connect(self.send_data)
         self.addAction(self.runaction)
 
@@ -94,6 +92,14 @@ class OW2Dto1D(WofryWidget):
             tab.setFixedHeight(self.IMAGE_HEIGHT)
             tab.setFixedWidth(self.IMAGE_WIDTH)
 
+    @Inputs.wofry_data
+    def set_wofry_data(self, wofry_data):
+        self.set_input(wofry_data)
+
+    @Inputs.generic_wavefront_2D
+    def set_generic_wavefront_2D(self, generic_wavefront_2D):
+        self.set_input(generic_wavefront_2D)
+
     def set_input(self, wofry_data):
         if not wofry_data is None:
             if isinstance(wofry_data, WofryData):
@@ -113,8 +119,8 @@ class OW2Dto1D(WofryWidget):
 
             self.progressBarFinished()
 
-            self.send("WofryData", WofryData(wavefront=self.wavefront1D))
-            self.send("GenericWavefront1D", self.wavefront1D)
+            self.Outputs.wofry_data.send(WofryData(wavefront=self.wavefront1D))
+            self.Outputs.generic_wavefront_1D.send(self.wavefront1D)
 
     def do_plot_results(self, progressBarValue):
         if not self.wavefront2D is None and not self.wavefront1D is None:
@@ -142,5 +148,4 @@ class OW2Dto1D(WofryWidget):
                              xtitle="Horizontal Coordinate [$\mu$m]" if self.section_axis == 0 else "Vertical Coordinate [$\mu$m]",
                              ytitle="Intensity")
 
-
-
+add_widget_parameters_to_module(__name__)

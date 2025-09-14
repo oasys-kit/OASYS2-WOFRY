@@ -1,17 +1,19 @@
 import sys
 
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtGui
 from PyQt5.QtCore import QRect
-from PyQt5.QtWidgets import QApplication, QFileDialog
-from Shadow import ShadowTools as ST
+from PyQt5.QtWidgets import QApplication
+
 from orangewidget import gui
-from oasys.widgets import gui as oasysgui, widget
-from oasys.util.oasys_util import EmittingStream
+from orangewidget.widget import Input
+from oasys2.widget.widget import OWWidget
+from oasys2.widget import gui as oasysgui
+from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from orangecontrib.wofry.util.wofry_objects import WofryData
 from orangecontrib.wofry.widgets.gui.python_script import PythonScript
 
-class OWWOInfo(widget.OWWidget):
+class OWWOInfo(OWWidget):
 
     name = "Info"
     description = "Display Data: Info"
@@ -22,17 +24,18 @@ class OWWOInfo(widget.OWWidget):
     category = "Data Display Tools"
     keywords = ["data", "file", "load", "read"]
 
-    inputs = [("Input Beam", WofryData, "set_input")]
+    class Inputs:
+        wofry_data  = Input("WofryData", WofryData, default=True, auto_summary=False)
 
     WIDGET_WIDTH = 950
     WIDGET_HEIGHT = 650
 
-    want_main_area=1
+    want_main_area = 1
     want_control_area = 0
 
-    input_data=None
+    input_data = None
 
-    def __init__(self, show_automatic_box=True):
+    def __init__(self):
         super().__init__()
 
         geom = QApplication.desktop().availableGeometry()
@@ -76,6 +79,7 @@ class OWWOInfo(widget.OWWidget):
         out_box = oasysgui.widgetBox(tab_out, "System Output", addSpace=True, orientation="horizontal", height=self.WIDGET_HEIGHT - 80)
         out_box.layout().addWidget(self.wofry_output)
 
+    @Inputs.wofry_data
     def set_input(self, wofry_data):
         if not wofry_data is None:
             if isinstance(wofry_data, WofryData):
@@ -103,14 +107,4 @@ class OWWOInfo(widget.OWWidget):
         self.wofryoutput.ensureCursorVisible()
 
 
-if __name__ == "__main__":
-    import sys
-    from PyQt5.QtWidgets import QApplication
-
-    a = QApplication(sys.argv)
-    ow = OWWOInfo()
-
-
-    ow.show()
-    a.exec_()
-    ow.saveSettings()
+add_widget_parameters_to_module(__name__)

@@ -309,30 +309,23 @@ class OWUndulatorCoherentModeDecomposition1D(WofryWidget, WidgetDecorator):
 
     def increase_mode_index(self):
         self.mode_index += 1
-        if self.coherent_mode_decomposition is None:
-            self.calculate()
-        else:
-            self.send_mode()
+        if self.coherent_mode_decomposition is None: self.calculate()
+        else:                                        self.send_mode()
 
     def decrease_mode_index(self):
         self.mode_index -= 1
         if self.mode_index < 0: self.mode_index = 0
-        if self.coherent_mode_decomposition is None:
-            self.calculate()
-        else:
-            self.send_mode()
+        if self.coherent_mode_decomposition is None: self.calculate()
+        else:                                        self.send_mode()
 
     def reset_mode_index(self):
         self.mode_index = 0
-        if self.coherent_mode_decomposition is None:
-            self.calculate()
-        else:
-            self.send_mode()
+        if self.coherent_mode_decomposition is None: self.calculate()
+        else:                                        self.send_mode()
 
     def set_Initialization(self):
         self.initialization_box_1.setVisible(self.initialize_from == 0)
         self.initialization_box_2.setVisible(self.initialize_from == 1)
-
 
     def initializeTabs(self):
         size = len(self.tab)
@@ -462,17 +455,14 @@ class OWUndulatorCoherentModeDecomposition1D(WofryWidget, WidgetDecorator):
         self.send_mode()
 
     def calculate(self):
-
         self.wofry_output.setText("")
 
         sys.stdout = EmittingStream(textWritten=self.writeStdOut)
-
 
         self.progressBarInit()
         self.progressBarSet(15)
 
         self.check_fields()
-
 
         if self.scan_direction_flag == 0:
             scan_direction = "H"
@@ -516,8 +506,6 @@ class OWUndulatorCoherentModeDecomposition1D(WofryWidget, WidgetDecorator):
         if self.view_type != 0:
             self.initializeTabs()
             self.plot_results()
-        else:
-            self.progressBarFinished()
 
         try:
             beamline = WOBeamline(light_source=self.get_light_source())
@@ -525,18 +513,14 @@ class OWUndulatorCoherentModeDecomposition1D(WofryWidget, WidgetDecorator):
         except:
             pass
 
-        # self.send_mode()
-
     def send_mode(self):
-
-        if self.coherent_mode_decomposition is None:
-            self.calculate()
-
-        if self.view_type != 0:
-            self.do_plot_send_mode()
+        if self.coherent_mode_decomposition is None: self.calculate()
+        if self.view_type != 0: self.do_plot_send_mode()
 
         beamline = WOBeamline(light_source=self.get_light_source())
         print(">>> sending mode: ", int(self.mode_index))
+
+        self.progressBarFinished()
 
         self.Outputs.wofry_data.send(WofryData(wavefront=self.coherent_mode_decomposition.get_eigenvector_wavefront(int(self.mode_index)),
                                                beamline=beamline))
@@ -562,8 +546,6 @@ class OWUndulatorCoherentModeDecomposition1D(WofryWidget, WidgetDecorator):
                              xtitle="Spatial Coordinate [$\mu$m]",
                              ytitle="Intensity",
                              calculate_fwhm=True)
-
-            self.progressBarFinished()
 
     def do_plot_results(self, progressBarValue):
         if not self.coherent_mode_decomposition is None:
