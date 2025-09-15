@@ -163,6 +163,5 @@ class OWWOThinObjectCorrector2D(OWWOOpticalElement2D):
                                  ytitle="Vertical [$\mu$m] ( %d pixels)"%(yy.size))
 
                 self.progressBarFinished()
-            
 
 add_widget_parameters_to_module(__name__)

@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QRect
 from PyQt5.QtGui import QTextCursor
 
-from orangewidget import gui
 from orangewidget.settings import Setting
 
 from orangewidget import gui
@@ -187,7 +186,6 @@ class DiagonalizePythonScript(OWWidget):
         pass
 
     def execute_script(self):
-
         self._script = str(self.pythonScript.toPlainText())
         self.console.write("\nRunning script:\n")
         self.console.push("exec(_script)")
