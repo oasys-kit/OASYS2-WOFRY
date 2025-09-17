@@ -9,14 +9,14 @@ from orangewidget import gui
 from orangewidget.settings import Setting
 from oasys2.widget import gui as oasysgui
 
-from oasys2.widget.widget import AutomaticWidget
+from oasys2.widget.widget import OWAutomaticWidget
 
 from silx.gui.plot import Plot2D
 
 from orangecontrib.wofry.util.wofry_util import ImageViewWithFWHM
 from orangecontrib.wofry.widgets.gui.python_script import PythonScript
 
-class WofryWidget(AutomaticWidget, openclass=True):
+class WofryWidget(OWAutomaticWidget, openclass=True):
     maintainer = "Luca Rebuffi"
     maintainer_email = "luca.rebuffi(@at@)anl.gov"
 
