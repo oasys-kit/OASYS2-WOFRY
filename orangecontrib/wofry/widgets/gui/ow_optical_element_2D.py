@@ -321,7 +321,7 @@ class OWWOOpticalElement2D(WofryWidget, WidgetDecorator):
             self.progressBarFinished()
 
             self.Outputs.wofry_data.send(WofryData(beamline=beamline, wavefront=output_wavefront))
-            self.Outputs.triggersend(TriggerIn(new_object=True))
+            self.Outputs.trigger.send(TriggerIn(new_object=True))
 
             try:
                 self.wofry_python_script.set_code(beamline.to_python_code())
