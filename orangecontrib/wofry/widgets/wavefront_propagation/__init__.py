@@ -17,4 +17,4 @@ BACKGROUND = "#E6E6E6"
 
 ICON = "icons/wavefront_propagation.png"
 
-PRIORITY = 11
+PRIORITY = 5.0
