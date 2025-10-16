@@ -1,8 +1,8 @@
 import sys
 
-from PyQt5 import QtGui
-from PyQt5.QtCore import QRect
-from PyQt5.QtWidgets import QApplication
+from AnyQt.QtCore import QRect
+from AnyQt.QtWidgets import QApplication
+from AnyQt.QtGui import QTextCursor
 
 from orangewidget import gui
 from orangewidget.widget import Input
@@ -38,7 +38,7 @@ class OWWOInfo(OWWidget):
     def __init__(self):
         super().__init__()
 
-        geom = QApplication.desktop().availableGeometry()
+        geom = QApplication.primaryScreen().geometry()
         self.setGeometry(QRect(round(geom.width()*0.05),
                                round(geom.height()*0.05),
                                round(min(geom.width()*0.98, self.WIDGET_WIDTH)),
@@ -101,7 +101,7 @@ class OWWOInfo(OWWidget):
 
     def writeStdOut(self, text):
         cursor = self.shadow_output.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
+        cursor.movePosition(QTextCursor.End)
         cursor.insertText(text)
         self.wofryoutput.setTextCursor(cursor)
         self.wofryoutput.ensureCursorVisible()

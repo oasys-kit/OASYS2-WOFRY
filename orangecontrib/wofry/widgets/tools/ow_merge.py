@@ -1,5 +1,4 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QPalette, QColor, QFont
+from AnyQt.QtWidgets import QMessageBox
 
 from orangewidget import gui
 from orangewidget.settings import Setting
@@ -90,13 +89,7 @@ class OWWOMerge(OWWidget):
         button_box = oasysgui.widgetBox(gen_box, "", addSpace=False, orientation="horizontal")
 
         button = gui.button(button_box, self, "Merge Wavefronts and Send", callback=self.merge_wavefronts)
-        font = QFont(button.font())
-        font.setBold(True)
-        button.setFont(font)
-        palette = QPalette(button.palette()) # make a copy of the palette
-        palette.setColor(QPalette.ButtonText, QColor('Dark Blue'))
-        button.setPalette(palette) # assign new palette
-        button.setFixedHeight(45)
+        button.setStyleSheet("color: darkblue; font-weight: bold; height: 45px;")
 
         weight_box = oasysgui.widgetBox(gen_box, "Relative Weights and Phases", addSpace=False, orientation="vertical")
 
@@ -200,9 +193,9 @@ class OWWOMerge(OWWidget):
         try:
             _ = wavefront.get_wavefront().get_complex_amplitude().shape
         except:
-            QtWidgets.QMessageBox.critical(self, "Error",
+            QMessageBox.critical(self, "Error",
                                            f"Data #{index} not displayable",
-                                           QtWidgets.QMessageBox.Ok)
+                                           QMessageBox.Ok)
             return
 
         setattr(self, f"input_wavefront_{index}", wavefront)
@@ -255,14 +248,14 @@ class OWWOMerge(OWWidget):
                 else:
                     ca = current_wavefront.get_wavefront().get_complex_amplitude().copy()
                     if current_wavefront.get_wavefront().get_photon_energy() != energy:
-                        QtWidgets.QMessageBox.critical(self, "Error",
+                        QMessageBox.critical(self, "Error",
                                                        "Energies must match %f != %f" % (energy, current_wavefront.get_wavefront().get_photon_energy()),
-                                                       QtWidgets.QMessageBox.Ok)
+                                                       QMessageBox.Ok)
                         return
                     if ca.shape != shape:
-                        QtWidgets.QMessageBox.critical(self, "Error",
+                        QMessageBox.critical(self, "Error",
                                                        "Wavefronts must have the same dimension and size",
-                                                       QtWidgets.QMessageBox.Ok)
+                                                       QMessageBox.Ok)
                         return
                     cumulated_complex_amplitude += ca
 

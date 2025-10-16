@@ -1,7 +1,6 @@
 import numpy
 
-from PyQt5.QtGui import QPalette, QColor, QFont
-from PyQt5.QtWidgets import QMessageBox
+from AnyQt.QtWidgets import QMessageBox
 from orangewidget import gui
 from orangewidget.settings import Setting
 from orangewidget.widget import Input, Output
@@ -85,13 +84,7 @@ class OWGenericWavefront2D(WofryWidget):
         button_box = oasysgui.widgetBox(self.controlArea, "", addSpace=False, orientation="horizontal")
 
         button = gui.button(button_box, self, "Generate", callback=self.generate)
-        font = QFont(button.font())
-        font.setBold(True)
-        button.setFont(font)
-        palette = QPalette(button.palette()) # make a copy of the palette
-        palette.setColor(QPalette.ButtonText, QColor('Dark Blue'))
-        button.setPalette(palette) # assign new palette
-        button.setFixedHeight(45)
+        button.setStyleSheet("color: darkblue; font-weight: bold; height: 45px;")
 
         gui.separator(self.controlArea)
 

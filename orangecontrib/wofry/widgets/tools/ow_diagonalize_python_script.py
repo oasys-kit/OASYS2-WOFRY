@@ -1,8 +1,8 @@
 import sys
-from PyQt5.QtGui import QPalette, QColor, QFont
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QRect
-from PyQt5.QtGui import QTextCursor
+
+from AnyQt.QtWidgets import QApplication
+from AnyQt.QtCore import QRect
+from AnyQt.QtGui import QTextCursor
 
 from orangewidget.settings import Setting
 
@@ -68,7 +68,7 @@ class DiagonalizePythonScript(OWWidget):
     def __init__(self, show_automatic_box=True, show_general_option_box=True):
         super().__init__()
 
-        geom = QApplication.desktop().availableGeometry()
+        geom = QApplication.primaryScreen().geometry()
         self.setGeometry(QRect(round(geom.width()*0.05),
                                round(geom.height()*0.05),
                                round(min(geom.width()*0.98, self.MAX_WIDTH)),
@@ -90,13 +90,7 @@ class DiagonalizePythonScript(OWWidget):
         button_box = oasysgui.widgetBox(self.controlArea, "", addSpace=False, orientation="horizontal")
 
         button = gui.button(button_box, self, "Refresh Script", callback=self.refresh_script)
-        font = QFont(button.font())
-        font.setBold(True)
-        button.setFont(font)
-        palette = QPalette(button.palette()) # make a copy of the palette
-        palette.setColor(QPalette.ButtonText, QColor('Dark Blue'))
-        button.setPalette(palette) # assign new palette
-        button.setFixedHeight(45)
+        button.setStyleSheet("color: darkblue; font-weight: bold; height: 45px;")
 
 
         gui.separator(self.controlArea)

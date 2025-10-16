@@ -1,9 +1,9 @@
 from typing import List, Any
 from collections import namedtuple
 
-from PyQt5.QtWidgets import QMessageBox, QTreeView, QAbstractItemView
-from PyQt5.QtGui import QPalette, QColor, QFont, QStandardItemModel, QStandardItem
-from PyQt5.QtCore import Qt, QSortFilterProxyModel, pyqtSignal, QModelIndex
+from AnyQt.QtWidgets import QMessageBox, QTreeView, QAbstractItemView
+from AnyQt.QtGui import QStandardItemModel, QStandardItem
+from AnyQt.QtCore import Qt, QSortFilterProxyModel, pyqtSignal, QModelIndex
 
 from orangewidget import gui
 from orangewidget.settings import Setting
@@ -66,13 +66,7 @@ class OWWOMerge(OWWidget):
         button_box = oasysgui.widgetBox(gen_box, "", addSpace=False, orientation="horizontal")
 
         button = gui.button(button_box, self, "Merge Wavefronts and Send", callback=self.merge_wavefronts)
-        font = QFont(button.font())
-        font.setBold(True)
-        button.setFont(font)
-        palette = QPalette(button.palette()) # make a copy of the palette
-        palette.setColor(QPalette.ButtonText, QColor('Dark Blue'))
-        button.setPalette(palette) # assign new palette
-        button.setFixedHeight(45)
+        button.setStyleSheet("color: darkblue; font-weight: bold; height: 45px;")
 
         weight_box = oasysgui.widgetBox(gen_box, "Relative Weights and Phases", addSpace=False, orientation="vertical")
 

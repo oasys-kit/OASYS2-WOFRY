@@ -1,9 +1,8 @@
 import numpy
 
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QMessageBox, QApplication
-from PyQt5.QtCore import QRect
-from PyQt5.QtGui import QTextCursor
+from AnyQt.QtWidgets import QMessageBox, QApplication
+from AnyQt.QtCore import QRect
+from AnyQt.QtGui import QTextCursor
 
 from orangewidget import gui
 from orangewidget.settings import Setting
@@ -34,7 +33,7 @@ class WofryWidget(OWAutomaticWidget, openclass=True):
     def __init__(self, is_automatic=True, show_view_options=True, show_script_tab=True):
         super().__init__(is_automatic)
 
-        geom = QApplication.desktop().availableGeometry()
+        geom = QApplication.primaryScreen().geometry()
         self.setGeometry(QRect(round(geom.width()*0.05),
                                round(geom.height()*0.05),
                                round(min(geom.width()*0.98, self.MAX_WIDTH)),
@@ -94,9 +93,9 @@ class WofryWidget(OWAutomaticWidget, openclass=True):
             self.initializeTabs()
             self.plot_results()
         except Exception as exception:
-            QtWidgets.QMessageBox.critical(self, "Error",
+            QMessageBox.critical(self, "Error",
                                        str(exception),
-                QtWidgets.QMessageBox.Ok)
+                QMessageBox.Ok)
 
             if self.IS_DEVELOP: raise exception
 

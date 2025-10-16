@@ -3,9 +3,9 @@ import os
 
 import orangecanvas.resources as resources
 
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QMessageBox, QLabel, QSizePolicy
-from PyQt5.QtCore import Qt
+from AnyQt.QtGui import QPixmap
+from AnyQt.QtWidgets import QMessageBox, QLabel, QSizePolicy
+from AnyQt.QtCore import Qt
 
 from orangewidget import gui
 from orangewidget.settings import Setting

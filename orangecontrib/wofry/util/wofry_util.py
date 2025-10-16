@@ -1,6 +1,6 @@
 import numpy, decimal
-from PyQt5.QtGui import QFont, QPalette, QColor
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QVBoxLayout
+
+from AnyQt.QtWidgets import QWidget, QGridLayout, QVBoxLayout
 
 from matplotlib.patches import FancyArrowPatch, ArrowStyle
 
@@ -26,94 +26,45 @@ class InfoBoxWidget(QWidget, OWComponent):
 
         self.total = gui.lineEdit(info_box_inner, self, "total_field", "Total", tooltip="Total", labelWidth=115, valueType=str, orientation="horizontal")
 
-        label_box_1 = gui.widgetBox(info_box_inner, "", addSpace=False, orientation="horizontal")
+        label_h_style = "color: blue"
+        label_v_style = "color: red"
 
-        self.label_h = QLabel("FWHM ")
-        self.label_h.setFixedWidth(115)
-        palette =  QPalette(self.label_h.palette())
-        palette.setColor(QPalette.Foreground, QColor('blue'))
-        self.label_h.setPalette(palette)
-        label_box_1.layout().addWidget(self.label_h)
+        label_box_1 = gui.widgetBox(info_box_inner, "", addSpace=False, orientation="horizontal")
+        self.label_h = gui.widgetLabel(label_box_1, "FWHM", labelWidth=115)
+        self.label_h.setStyleSheet(label_h_style)
         self.fwhm_h = gui.lineEdit(label_box_1, self, "fwhm_h_field", "", tooltip="FWHM", labelWidth=115, valueType=str, orientation="horizontal")
 
         if is_2d:
             label_box_2 = gui.widgetBox(info_box_inner, "", addSpace=False, orientation="horizontal")
-
-            self.label_v = QLabel("FWHM ")
-            self.label_v.setFixedWidth(115)
-            palette =  QPalette(self.label_h.palette())
-            palette.setColor(QPalette.Foreground, QColor('red'))
-            self.label_v.setPalette(palette)
-            label_box_2.layout().addWidget(self.label_v)
+            self.label_v = gui.widgetLabel(label_box_2, "FWHM", labelWidth=115)
+            self.label_v.setStyleSheet(label_v_style)
             self.fwhm_v = gui.lineEdit(label_box_2, self, "fwhm_v_field", "", tooltip="FWHM", labelWidth=115, valueType=str, orientation="horizontal")
 
         label_box_1 = gui.widgetBox(info_box_inner, "", addSpace=False, orientation="horizontal")
-
-        self.label_s_h = QLabel("\u03c3 ")
-        self.label_s_h.setFixedWidth(115)
-        palette =  QPalette(self.label_s_h.palette())
-        palette.setColor(QPalette.Foreground, QColor('blue'))
-        self.label_s_h.setPalette(palette)
-        label_box_1.layout().addWidget(self.label_s_h)
+        self.label_s_h = gui.widgetLabel(label_box_1, "\u03c3", labelWidth=115)
+        self.label_s_h.setStyleSheet(label_h_style)
         self.sigma_h = gui.lineEdit(label_box_1, self, "sigma_h_field", "", tooltip="Sigma", labelWidth=115, valueType=str, orientation="horizontal")
 
         if is_2d:
             label_box_2 = gui.widgetBox(info_box_inner, "", addSpace=False, orientation="horizontal")
-
-            self.label_s_v = QLabel("\u03c3 ")
-            self.label_s_v.setFixedWidth(115)
-            palette =  QPalette(self.label_s_v.palette())
-            palette.setColor(QPalette.Foreground, QColor('red'))
-            self.label_s_v.setPalette(palette)
-            label_box_2.layout().addWidget(self.label_s_v)
+            self.label_s_v = gui.widgetLabel(label_box_2, "\u03c3", labelWidth=115)
+            self.label_s_v.setStyleSheet(label_v_style)
             self.sigma_v = gui.lineEdit(label_box_2, self, "sigma_v_field", "", tooltip="Sigma", labelWidth=115, valueType=str, orientation="horizontal")
 
+        read_only_style = "color: darkblue; background-color: rgb(243, 240, 160); font-weight: bold;"
+
         self.total.setReadOnly(True)
-        font = QFont(self.total.font())
-        font.setBold(True)
-        self.total.setFont(font)
-        palette = QPalette(self.total.palette())
-        palette.setColor(QPalette.Text, QColor('dark blue'))
-        palette.setColor(QPalette.Base, QColor(243, 240, 160))
-        self.total.setPalette(palette)
-
+        self.total.setStyleSheet(read_only_style)
         self.fwhm_h.setReadOnly(True)
-        font = QFont(self.fwhm_h.font())
-        font.setBold(True)
-        self.fwhm_h.setFont(font)
-        palette = QPalette(self.fwhm_h.palette())
-        palette.setColor(QPalette.Text, QColor('dark blue'))
-        palette.setColor(QPalette.Base, QColor(243, 240, 160))
-        self.fwhm_h.setPalette(palette)
-
+        self.fwhm_h.setStyleSheet(read_only_style)
         self.sigma_h.setReadOnly(True)
-        font = QFont(self.sigma_h.font())
-        font.setBold(True)
-        self.sigma_h.setFont(font)
-        palette = QPalette(self.sigma_h.palette())
-        palette.setColor(QPalette.Text, QColor('dark blue'))
-        palette.setColor(QPalette.Base, QColor(243, 240, 160))
-        self.sigma_h.setPalette(palette)
+        self.sigma_h.setStyleSheet(read_only_style)
 
         if is_2d:
             self.fwhm_v.setReadOnly(True)
-            font = QFont(self.fwhm_v.font())
-            font.setBold(True)
-            self.fwhm_v.setFont(font)
-            palette = QPalette(self.fwhm_v.palette())
-            palette.setColor(QPalette.Text, QColor('dark blue'))
-            palette.setColor(QPalette.Base, QColor(243, 240, 160))
-            self.fwhm_v.setPalette(palette)
-
+            self.fwhm_v.setStyleSheet(read_only_style)
             self.sigma_v.setReadOnly(True)
-            font = QFont(self.sigma_v.font())
-            font.setBold(True)
-            self.sigma_v.setFont(font)
-            palette = QPalette(self.sigma_v.palette())
-            palette.setColor(QPalette.Text, QColor('dark blue'))
-            palette.setColor(QPalette.Base, QColor(243, 240, 160))
-            self.sigma_v.setPalette(palette)
-
+            self.sigma_v.setStyleSheet(read_only_style)
 
     def clear(self):
         self.total.setText("0.0")
@@ -318,7 +269,7 @@ if __name__=="__main__":
     w.set_gaussian(0.00055,0.0002)
 
 
-    from PyQt5.QtWidgets import QApplication
+    from AnyQt.QtWidgets import QApplication
     app = QApplication([])
 
     widget = QWidget()
