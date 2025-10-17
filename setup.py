@@ -8,7 +8,7 @@ except AttributeError:
     from setuptools import find_packages, setup
 
 NAME = 'OASYS2-WOFRY'
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 ISRELEASED = False
 
 DESCRIPTION = 'WOFRY (Wave Optics FRamework in pYthon)'
@@ -40,9 +40,9 @@ SETUP_REQUIRES = (
 )
 
 INSTALL_REQUIRES = (
-    'oasys2>=0.0.1',
-    'syned-gui-2>=1.0.0',
-    'wofryimpl>=1.0.32',
+    'oasys2>=0.0.7',
+    'syned-gui-2>=1.0.3',
+    'wofryimpl>=1.0.33',
 )
 
 PACKAGES = find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests'))
