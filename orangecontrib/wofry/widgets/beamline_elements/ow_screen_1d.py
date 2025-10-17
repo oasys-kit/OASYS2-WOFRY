@@ -1,6 +1,6 @@
 from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
-from orangecontrib.wofry.widgets.gui.ow_optical_element_1D import OWWOOpticalElement1D
+from orangecontrib.wofry.widgets.gui.ow_optical_element_1d import OWWOOpticalElement1D
 from syned.beamline.optical_elements.ideal_elements.screen import Screen
 
 

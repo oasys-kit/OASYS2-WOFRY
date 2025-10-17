@@ -10,7 +10,7 @@ from oasys2.widget.util.widget_objects import OasysSurfaceData
 
 from syned.widget.widget_decorator import WidgetDecorator
 
-from orangecontrib.wofry.widgets.gui.ow_optical_element_2D import OWWOOpticalElement2D
+from orangecontrib.wofry.widgets.gui.ow_optical_element_2d import OWWOOpticalElement2D
 
 from wofryimpl.beamline.optical_elements.refractors.thin_object import WOThinObject
 

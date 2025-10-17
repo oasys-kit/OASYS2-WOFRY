@@ -20,7 +20,7 @@ from syned.widget.widget_decorator import WidgetDecorator
 from wofry.propagator.wavefront1D.generic_wavefront import GenericWavefront1D
 
 from orangecontrib.wofry.util.wofry_objects import WofryData
-from orangecontrib.wofry.widgets.gui.ow_optical_element_1D import OWWOOpticalElement1D
+from orangecontrib.wofry.widgets.gui.ow_optical_element_1d import OWWOOpticalElement1D
 from wofryimpl.beamline.optical_elements.mirrors.mirror import WOMirror1D
 
 class OWMirror1D(OWWOOpticalElement1D):

@@ -9,7 +9,7 @@ from syned.beamline.optical_elements.ideal_elements.ideal_lens import IdealLens
 
 from wofryimpl.beamline.optical_elements.ideal_elements.ideal_lens import WOIdealLens
 
-from orangecontrib.wofry.widgets.gui.ow_optical_element_2D import OWWOOpticalElement2D
+from orangecontrib.wofry.widgets.gui.ow_optical_element_2d import OWWOOpticalElement2D
 
 
 class OWWOIdealLens(OWWOOpticalElement2D):

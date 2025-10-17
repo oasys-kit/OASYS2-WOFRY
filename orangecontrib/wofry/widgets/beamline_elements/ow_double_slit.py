@@ -1,6 +1,6 @@
 from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
-from orangecontrib.wofry.widgets.gui.ow_optical_element_2D import OWWOOpticalElement2DWithDoubleBoundaryShape
+from orangecontrib.wofry.widgets.gui.ow_optical_element_2d import OWWOOpticalElement2DWithDoubleBoundaryShape
 from syned.beamline.optical_elements.absorbers.slit import Slit
 from wofryimpl.beamline.optical_elements.absorbers.slit import WOSlit
 

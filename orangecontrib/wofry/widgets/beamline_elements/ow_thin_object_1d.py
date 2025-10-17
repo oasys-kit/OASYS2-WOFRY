@@ -13,7 +13,7 @@ from oasys2.widget.util.widget_objects import TriggerOut
 
 from syned.widget.widget_decorator import WidgetDecorator
 
-from orangecontrib.wofry.widgets.gui.ow_optical_element_1D import OWWOOpticalElement1D
+from orangecontrib.wofry.widgets.gui.ow_optical_element_1d import OWWOOpticalElement1D
 from wofryimpl.beamline.optical_elements.refractors.thin_object import WOThinObject1D #TODO from wofryimpl....
 
 

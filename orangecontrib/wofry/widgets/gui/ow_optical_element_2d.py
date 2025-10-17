@@ -423,8 +423,8 @@ class OWWOOpticalElement2D(WofryWidget, WidgetDecorator):
                                  tabs_canvas_index=0,
                                  plot_canvas_index=0,
                                  title=titles[0],
-                                 xtitle="Horizontal [$\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_x().size),
-                                 ytitle="Vertical [$\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_y().size))
+                                 xtitle="Horizontal [$\\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_x().size),
+                                 ytitle="Vertical [$\\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_y().size))
 
                 self.plot_data2D(data2D=self.wavefront_to_plot.get_phase(from_minimum_intensity=0.1),
                              dataX=1e6*self.wavefront_to_plot.get_coordinate_x(),
@@ -433,8 +433,8 @@ class OWWOOpticalElement2D(WofryWidget, WidgetDecorator):
                              tabs_canvas_index=1,
                              plot_canvas_index=1,
                              title=titles[1],
-                             xtitle="Horizontal [$\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_x().size),
-                             ytitle="Vertical [$\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_y().size))
+                             xtitle="Horizontal [$\\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_x().size),
+                             ytitle="Vertical [$\\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_y().size))
 
                 self.progressBarFinished()
 

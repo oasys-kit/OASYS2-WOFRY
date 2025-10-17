@@ -5,7 +5,7 @@ from oasys2.widget import gui as oasysgui
 from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
 from wofryimpl.beamline.optical_elements.refractors.thin_object_corrector import WOThinObjectCorrector
-from orangecontrib.wofry.widgets.gui.ow_optical_element_2D import OWWOOpticalElement2D
+from orangecontrib.wofry.widgets.gui.ow_optical_element_2d import OWWOOpticalElement2D
 
 class OWWOThinObjectCorrector2D(OWWOOpticalElement2D):
 

@@ -2,7 +2,7 @@ from orangewidget.settings import Setting
 from oasys2.widget import gui as oasysgui
 from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 
-from orangecontrib.wofry.widgets.gui.ow_optical_element_1D import OWWOOpticalElement1DWithBoundaryShape
+from orangecontrib.wofry.widgets.gui.ow_optical_element_1d import OWWOOpticalElement1DWithBoundaryShape
 from syned.beamline.optical_elements.absorbers.beam_stopper import BeamStopper
 
 from wofryimpl.beamline.optical_elements.absorbers.beam_stopper import WOBeamStopper1D

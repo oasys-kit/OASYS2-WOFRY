@@ -17,7 +17,7 @@ from oasys2.canvas.util.canvas_util import add_widget_parameters_to_module
 from oasys2.widget.util.widget_objects import TriggerOut
 
 from syned.widget.widget_decorator import WidgetDecorator
-from orangecontrib.wofry.widgets.gui.ow_optical_element_1D import OWWOOpticalElement1D
+from orangecontrib.wofry.widgets.gui.ow_optical_element_1d import OWWOOpticalElement1D
 from wofryimpl.beamline.optical_elements.refractors.lens import WOLens1D
 
 
