@@ -13,7 +13,7 @@ from orangecontrib.wofry.widgets.gui.ow_wofry_widget import WofryWidget
 
 class GenericWavefrontViewer2D(WofryWidget):
 
-    name = "Wavefront Viewer 2D"
+    name = "Generic Wavefront Viewer 2D"
     id = "WavefrontViewer2D"
     description = "Wavefront Viewer 2D"
     icon = "icons/wv2d.png"
