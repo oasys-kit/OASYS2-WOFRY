@@ -173,8 +173,8 @@ class GenericWavefrontViewer2D(WofryWidget):
                                  tabs_canvas_index=tabs_canvas_index,
                                  plot_canvas_index=0,
                                  title="Wavefront 2D Intensity",
-                                 xtitle="Horizontal [$\mu$m] ( %d pixels)"%(self.accumulated_data["x"].size),
-                                 ytitle="Vertical [$\mu$m] (%d pixels)"%(self.accumulated_data["y"].size))
+                                 xtitle="Horizontal [$\\mu$m] ( %d pixels)"%(self.accumulated_data["x"].size),
+                                 ytitle="Vertical [$\\mu$m] (%d pixels)"%(self.accumulated_data["y"].size))
 
                 x,y,txt = self.get_data_iterations()
                 if not(self.keep_result):
@@ -205,8 +205,8 @@ class GenericWavefrontViewer2D(WofryWidget):
                                  tabs_canvas_index=tabs_canvas_index,
                                  plot_canvas_index=0,
                                  title="Wavefront 2D Averaged Phase [degrees]",
-                                 xtitle="Horizontal Coordinate [$\mu$m]",
-                                 ytitle="Vertical Coordinate [$\mu$m]")
+                                 xtitle="Horizontal Coordinate [$\\mu$m]",
+                                 ytitle="Vertical Coordinate [$\\mu$m]")
             if self.plot_csd:
                 tabs_canvas_index += 1
                 self.plot_data2D(data2D=numpy.abs(self.accumulated_data["W_x1_0_x2_0"]),
@@ -216,8 +216,8 @@ class GenericWavefrontViewer2D(WofryWidget):
                                  tabs_canvas_index=tabs_canvas_index,
                                  plot_canvas_index=0,
                                  title="Cross spectral density (horizontal, at y=0)",
-                                 xtitle="Horizontal Coordinate x1 [$\mu$m]",
-                                 ytitle="Horizontal Coordinate x2 [$\mu$m]")
+                                 xtitle="Horizontal Coordinate x1 [$\\mu$m]",
+                                 ytitle="Horizontal Coordinate x2 [$\\mu$m]")
                 tabs_canvas_index += 1
                 self.plot_data2D(data2D=numpy.abs(self.accumulated_data["W_0_y1_0_y2"]),
                                  dataX=1e6*self.accumulated_data["x"],
@@ -226,8 +226,8 @@ class GenericWavefrontViewer2D(WofryWidget):
                                  tabs_canvas_index=tabs_canvas_index,
                                  plot_canvas_index=0,
                                  title="Cross spectral density (vertical, at x=0)",
-                                 xtitle="Vertical Coordinate y1 [$\mu$m]",
-                                 ytitle="Vertical Coordinate y2 [$\mu$m]")
+                                 xtitle="Vertical Coordinate y1 [$\\mu$m]",
+                                 ytitle="Vertical Coordinate y2 [$\\mu$m]")
             if self.plot_iterations:
                 tabs_canvas_index += 1
                 x,y,txt = self.get_data_iterations()

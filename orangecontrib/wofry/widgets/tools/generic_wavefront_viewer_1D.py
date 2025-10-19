@@ -149,7 +149,7 @@ class GenericWavefrontViewer1D(WofryWidget):
                                  tabs_canvas_index=0,
                                  plot_canvas_index=0,
                                  title=self.titles[0],
-                                 xtitle="Spatial Coordinate [$\mu$m]",
+                                 xtitle="Spatial Coordinate [$\\mu$m]",
                                  ytitle="Intensity")
             elif self.keep_result == 2:
                 self.plot_data1D(x=1e6*self.accumulated_data["x"],
@@ -158,7 +158,7 @@ class GenericWavefrontViewer1D(WofryWidget):
                                  tabs_canvas_index=0,
                                  plot_canvas_index=0,
                                  title=self.titles[0],
-                                 xtitle="Spatial Coordinate [$\mu$m]",
+                                 xtitle="Spatial Coordinate [$\\mu$m]",
                                  ytitle="Intensity")
             else:
                 raise ValueError("Non recognised flag: keep_results")
@@ -173,7 +173,7 @@ class GenericWavefrontViewer1D(WofryWidget):
                                  tabs_canvas_index=1,
                                  plot_canvas_index=1,
                                  title=self.titles[1],
-                                 xtitle="Spatial Coordinate [$\mu$m]",
+                                 xtitle="Spatial Coordinate [$\\mu$m]",
                                  ytitle="Phase (rad)")
 
                 self.plot_data1D(x=1e6*self.accumulated_data['x'],
@@ -182,7 +182,7 @@ class GenericWavefrontViewer1D(WofryWidget):
                                  tabs_canvas_index=2,
                                  plot_canvas_index=2,
                                  title=self.titles[2],
-                                 xtitle="Spatial Coordinate [$\mu$m]",
+                                 xtitle="Spatial Coordinate [$\\mu$m]",
                                  ytitle="Real(Amplitude)")
 
                 self.plot_data1D(x=1e6*self.accumulated_data['x'],
@@ -191,7 +191,7 @@ class GenericWavefrontViewer1D(WofryWidget):
                                  tabs_canvas_index=3,
                                  plot_canvas_index=3,
                                  title=self.titles[3],
-                                 xtitle="Spatial Coordinate [$\mu$m]",
+                                 xtitle="Spatial Coordinate [$\\mu$m]",
                                  ytitle="Imag(Amplitude)")
 
 
