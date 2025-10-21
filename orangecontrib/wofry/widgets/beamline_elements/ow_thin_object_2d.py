@@ -163,9 +163,9 @@ class OWWOThinObject2D(OWWOOpticalElement2D):
                                  progressBarValue=progressBarValue,
                                  tabs_canvas_index=2,
                                  plot_canvas_index=2,
-                                 title="O.E. Thickness profile in $\mu$m",
-                                 xtitle="Horizontal [$\mu$m] ( %d pixels)"%(xx.size),
-                                 ytitle="Vertical [$\mu$m] ( %d pixels)"%(yy.size))
+                                 title="O.E. Thickness profile in $\\mu$m",
+                                 xtitle="Horizontal [$\\mu$m] ( %d pixels)"%(xx.size),
+                                 ytitle="Vertical [$\\mu$m] ( %d pixels)"%(yy.size))
 
                 self.progressBarFinished()
 

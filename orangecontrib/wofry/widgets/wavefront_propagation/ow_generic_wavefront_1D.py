@@ -401,7 +401,7 @@ class OWGenericWavefront1D(WofryWidget):
                              plot_canvas_index=0,
                              calculate_fwhm=True,
                              title=self.titles[0],
-                             xtitle="Spatial Coordinate [$\mu$m]",
+                             xtitle="Spatial Coordinate [$\\mu$m]",
                              ytitle="Intensity")
 
             self.plot_data1D(x=1e6*self.wavefront1D.get_abscissas(),
@@ -411,7 +411,7 @@ class OWGenericWavefront1D(WofryWidget):
                              plot_canvas_index=1,
                              calculate_fwhm=False,
                              title=self.titles[1],
-                             xtitle="Spatial Coordinate [$\mu$m]",
+                             xtitle="Spatial Coordinate [$\\mu$m]",
                              ytitle="Phase [unwrapped, for intensity > 10% of peak] (rad)")
 
             self.plot_data1D(x=1e6*self.wavefront1D.get_abscissas(),
@@ -421,7 +421,7 @@ class OWGenericWavefront1D(WofryWidget):
                              plot_canvas_index=2,
                              calculate_fwhm=False,
                              title=self.titles[2],
-                             xtitle="Spatial Coordinate [$\mu$m]",
+                             xtitle="Spatial Coordinate [$\\mu$m]",
                              ytitle="Real(Amplitude)")
 
             self.plot_data1D(x=1e6*self.wavefront1D.get_abscissas(),
@@ -431,7 +431,7 @@ class OWGenericWavefront1D(WofryWidget):
                              plot_canvas_index=3,
                              calculate_fwhm=False,
                              title=self.titles[3],
-                             xtitle="Spatial Coordinate [$\mu$m]",
+                             xtitle="Spatial Coordinate [$\\mu$m]",
                              ytitle="Imag(Amplitude)")
 
 

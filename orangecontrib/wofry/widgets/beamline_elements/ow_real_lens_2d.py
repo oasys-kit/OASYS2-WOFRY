@@ -205,9 +205,9 @@ class OWWORealLens2D(OWWOOpticalElement2D):
                              progressBarValue=progressBarValue,
                              tabs_canvas_index=2,
                              plot_canvas_index=2,
-                             title="O.E. Thickness profile in $\mu$m",
-                             xtitle="Horizontal [$\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_x().size),
-                             ytitle="Vertical [$\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_y().size))
+                             title="O.E. Thickness profile in $\\mu$m",
+                             xtitle="Horizontal [$\\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_x().size),
+                             ytitle="Vertical [$\\mu$m] ( %d pixels)"%(self.wavefront_to_plot.get_coordinate_y().size))
 
                 self.progressBarFinished()
 

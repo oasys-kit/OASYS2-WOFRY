@@ -298,7 +298,7 @@ class OWMirror1D(OWWOOpticalElement1D):
                                  calculate_fwhm=False,
                                  title=self.get_titles()[4],
                                  xtitle="Spatial Coordinate along o.e. [m]",
-                                 ytitle="Profile Height [$\mu$m]")
+                                 ytitle="Profile Height [$\\mu$m]")
 
 
                 x, y, amplitude = self.get_optical_element().get_footprint(self.input_data.get_wavefront())

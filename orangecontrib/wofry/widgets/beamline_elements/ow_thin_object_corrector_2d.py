@@ -159,8 +159,8 @@ class OWWOThinObjectCorrector2D(OWWOOpticalElement2D):
                                  tabs_canvas_index=2,
                                  plot_canvas_index=2,
                                  title="thickness profile",
-                                 xtitle="Horizontal [$\mu$m] ( %d pixels)"%(xx.size),
-                                 ytitle="Vertical [$\mu$m] ( %d pixels)"%(yy.size))
+                                 xtitle="Horizontal [$\\mu$m] ( %d pixels)"%(xx.size),
+                                 ytitle="Vertical [$\\mu$m] ( %d pixels)"%(yy.size))
 
                 self.progressBarFinished()
 

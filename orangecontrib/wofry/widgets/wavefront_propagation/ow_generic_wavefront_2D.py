@@ -441,8 +441,8 @@ class OWGenericWavefront2D(WofryWidget):
                              tabs_canvas_index=0,
                              plot_canvas_index=0,
                              title=titles[0],
-                             xtitle="Horizontal [$\mu$m] ( %d pixels)" % (self.wavefront2D.get_coordinate_x().size),
-                             ytitle="Vertical [$\mu$m] ( %d pixels)" % (self.wavefront2D.get_coordinate_y().size))
+                             xtitle="Horizontal [$\\mu$m] ( %d pixels)" % (self.wavefront2D.get_coordinate_x().size),
+                             ytitle="Vertical [$\\mu$m] ( %d pixels)" % (self.wavefront2D.get_coordinate_y().size))
 
 
             self.plot_data2D(data2D=self.wavefront2D.get_phase(from_minimum_intensity=0.1),
@@ -452,9 +452,9 @@ class OWGenericWavefront2D(WofryWidget):
                              tabs_canvas_index=1,
                              plot_canvas_index=1,
                              title=titles[1],
-                             xtitle="Horizontal [$\mu$m] ( %d pixels)" % (
+                             xtitle="Horizontal [$\\mu$m] ( %d pixels)" % (
                                  self.wavefront2D.get_coordinate_x().size),
-                             ytitle="Vertical [$\mu$m] ( %d pixels)" % (self.wavefront2D.get_coordinate_y().size))
+                             ytitle="Vertical [$\\mu$m] ( %d pixels)" % (self.wavefront2D.get_coordinate_y().size))
 
             self.progressBarFinished()
 

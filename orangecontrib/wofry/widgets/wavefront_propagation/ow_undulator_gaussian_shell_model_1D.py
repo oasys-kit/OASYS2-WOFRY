@@ -489,7 +489,7 @@ class OWUndulatorGaussianShellModel1D(WofryWidget, WidgetDecorator):
                              tabs_canvas_index=0,
                              plot_canvas_index=0,
                              title=self.titles[0],
-                             xtitle="Spatial Coordinate [$\mu$m]",
+                             xtitle="Spatial Coordinate [$\\mu$m]",
                              ytitle="Intensity",
                              calculate_fwhm=True)
 

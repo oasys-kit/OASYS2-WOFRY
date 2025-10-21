@@ -129,8 +129,8 @@ class OW2Dto1D(WofryWidget):
                              tabs_canvas_index=0,
                              plot_canvas_index=0,
                              title=titles[0],
-                             xtitle="Horizontal Coordinate [$\mu$m]",
-                             ytitle="Vertical Coordinate [$\mu$m]")
+                             xtitle="Horizontal Coordinate [$\\mu$m]",
+                             ytitle="Vertical Coordinate [$\\mu$m]")
 
             self.plot_data1D(x=1e6*self.wavefront1D.get_abscissas(),
                              y=self.wavefront1D.get_intensity(),
@@ -138,7 +138,7 @@ class OW2Dto1D(WofryWidget):
                              tabs_canvas_index=1,
                              plot_canvas_index=1,
                              title=titles[1],
-                             xtitle="Horizontal Coordinate [$\mu$m]" if self.section_axis == 0 else "Vertical Coordinate [$\mu$m]",
+                             xtitle="Horizontal Coordinate [$\\mu$m]" if self.section_axis == 0 else "Vertical Coordinate [$\\mu$m]",
                              ytitle="Intensity")
 
 add_widget_parameters_to_module(__name__)

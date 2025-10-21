@@ -535,7 +535,7 @@ class OWUndulatorCoherentModeDecomposition1D(WofryWidget, WidgetDecorator):
                              tabs_canvas_index=7,
                              plot_canvas_index=7,
                              title=self.titles[7],
-                             xtitle="Spatial Coordinate [$\mu$m]",
+                             xtitle="Spatial Coordinate [$\\mu$m]",
                              ytitle="Intensity",
                              calculate_fwhm=True)
 
@@ -560,7 +560,7 @@ class OWUndulatorCoherentModeDecomposition1D(WofryWidget, WidgetDecorator):
                              tabs_canvas_index=0,
                              plot_canvas_index=0,
                              title=self.titles[0] + " (backpropagated)",
-                             xtitle="Spatial Coordinate [$\mu$m]",
+                             xtitle="Spatial Coordinate [$\\mu$m]",
                              ytitle="Intensity",
                              calculate_fwhm=True)
 
@@ -579,7 +579,7 @@ class OWUndulatorCoherentModeDecomposition1D(WofryWidget, WidgetDecorator):
                                  tabs_canvas_index=1,
                                  plot_canvas_index=1,
                                  title=self.titles[1],
-                                 xtitle="Spatial Coordinate [$\mu$m]",
+                                 xtitle="Spatial Coordinate [$\\mu$m]",
                                  ytitle="Intensity at far field (%g m)" % self.coherent_mode_decomposition.distance_to_screen,
                                  calculate_fwhm=True)
 
@@ -594,8 +594,8 @@ class OWUndulatorCoherentModeDecomposition1D(WofryWidget, WidgetDecorator):
                              1e6 * abscissas,
                              progressBarValue, 2, 1,
                              title=self.titles[2],
-                             xtitle="Spatial Coordinate x1 [$\mu$m]",
-                             ytitle="Spatial Coordinate x2 [$\mu$m]")
+                             xtitle="Spatial Coordinate x1 [$\\mu$m]",
+                             ytitle="Spatial Coordinate x2 [$\\mu$m]")
 
             #
             # plot Spectral Degree of Coherence
@@ -607,8 +607,8 @@ class OWUndulatorCoherentModeDecomposition1D(WofryWidget, WidgetDecorator):
                              1e6 * abscissas,
                              progressBarValue, 3, 1,
                              title=self.titles[3],
-                             xtitle="Spatial Coordinate x1 [$\mu$m]",
-                             ytitle="Spatial Coordinate x2 [$\mu$m]")
+                             xtitle="Spatial Coordinate x1 [$\\mu$m]",
+                             ytitle="Spatial Coordinate x2 [$\\mu$m]")
 
             #
             # plot cumulated occupation

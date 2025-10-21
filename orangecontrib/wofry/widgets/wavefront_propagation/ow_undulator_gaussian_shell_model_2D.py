@@ -540,8 +540,8 @@ class OWUndulatorGaussianShellModel2D(WofryWidget, WidgetDecorator):
                              progressBarValue=progressBarValue,
                              tabs_canvas_index=0,
                              plot_canvas_index=0,
-                             title=titles[0] + "; mode index = %d = (%d, %d)" % (self.mode_index, ih, iv), xtitle="Horizontal [$\mu$m] ( %d pixels)" % (self.wavefront2D.get_coordinate_x().size),
-                             ytitle="Vertical [$\mu$m] ( %d pixels)" % (self.wavefront2D.get_coordinate_y().size))
+                             title=titles[0] + "; mode index = %d = (%d, %d)" % (self.mode_index, ih, iv), xtitle="Horizontal [$\\mu$m] ( %d pixels)" % (self.wavefront2D.get_coordinate_x().size),
+                             ytitle="Vertical [$\\mu$m] ( %d pixels)" % (self.wavefront2D.get_coordinate_y().size))
 
             self.plot_data1D(numpy.arange(self._cumulated_occupation.size),
                              self._cumulated_occupation / self._cumulated_occupation[-1],

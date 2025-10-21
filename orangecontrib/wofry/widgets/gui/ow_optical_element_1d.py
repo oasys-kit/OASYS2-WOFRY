@@ -459,7 +459,7 @@ class OWWOOpticalElement1D(WofryWidget, WidgetDecorator):
                              tabs_canvas_index=0,
                              plot_canvas_index=0,
                              title=self.get_titles()[0],
-                             xtitle="Spatial Coordinate [$\mu$m]",
+                             xtitle="Spatial Coordinate [$\\mu$m]",
                              ytitle="Intensity")
 
 
@@ -469,7 +469,7 @@ class OWWOOpticalElement1D(WofryWidget, WidgetDecorator):
                              tabs_canvas_index=1,
                              plot_canvas_index=1,
                              title=self.get_titles()[1],
-                             xtitle="Spatial Coordinate [$\mu$m]",
+                             xtitle="Spatial Coordinate [$\\mu$m]",
                              ytitle="Phase [unwrapped, for intensity > 10% of peak] (rad)")
 
             self.plot_data1D(x=1e6*self.wavefront_to_plot.get_abscissas(),
@@ -478,7 +478,7 @@ class OWWOOpticalElement1D(WofryWidget, WidgetDecorator):
                              tabs_canvas_index=2,
                              plot_canvas_index=2,
                              title=self.get_titles()[2],
-                             xtitle="Spatial Coordinate [$\mu$m]",
+                             xtitle="Spatial Coordinate [$\\mu$m]",
                              ytitle="Real(Amplitude)")
 
             self.plot_data1D(x=1e6*self.wavefront_to_plot.get_abscissas(),
@@ -487,7 +487,7 @@ class OWWOOpticalElement1D(WofryWidget, WidgetDecorator):
                              tabs_canvas_index=3,
                              plot_canvas_index=3,
                              title=self.get_titles()[3],
-                             xtitle="Spatial Coordinate [$\mu$m]",
+                             xtitle="Spatial Coordinate [$\\mu$m]",
                              ytitle="Imag(Amplitude)")
 
 

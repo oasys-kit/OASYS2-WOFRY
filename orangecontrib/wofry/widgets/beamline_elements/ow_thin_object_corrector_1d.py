@@ -152,8 +152,8 @@ class OWWOThinObjectCorrector1D(OWWOOpticalElement1D):
                                  plot_canvas_index=4,
                                  calculate_fwhm=False,
                                  title=self.get_titles()[4],
-                                 xtitle="Spatial Coordinate along o.e. [$\mu$m]",
-                                 ytitle="Total lens thickness [$\mu$m]")
+                                 xtitle="Spatial Coordinate along o.e. [$\\mu$m]",
+                                 ytitle="Total lens thickness [$\\mu$m]")
 
                 self.progressBarFinished()
 
