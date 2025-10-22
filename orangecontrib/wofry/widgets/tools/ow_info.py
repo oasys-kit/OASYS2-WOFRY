@@ -25,7 +25,7 @@ class OWWOInfo(OWWidget):
     keywords = ["data", "file", "load", "read"]
 
     class Inputs:
-        wofry_data  = Input("WofryData", WofryData, default=True, auto_summary=False)
+        wofry_data  = Input("Wofry Data", WofryData, default=True, auto_summary=False)
 
     WIDGET_WIDTH = 950
     WIDGET_HEIGHT = 650

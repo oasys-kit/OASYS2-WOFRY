@@ -22,19 +22,19 @@ class OWWOMerge(OWWidget):
     keywords = ["WodryData", "Add wavefronts"]
 
     class Inputs:
-        wofry_data_1  = Input("Input WofryData #1", WofryData, default=True, auto_summary=False)
-        wofry_data_2  = Input("Input WofryData #2", WofryData, default=True, auto_summary=False)
-        wofry_data_3  = Input("Input WofryData #3", WofryData, default=True, auto_summary=False)
-        wofry_data_4  = Input("Input WofryData #4", WofryData, default=True, auto_summary=False)
-        wofry_data_5  = Input("Input WofryData #5", WofryData, default=True, auto_summary=False)
-        wofry_data_6  = Input("Input WofryData #6", WofryData, default=True, auto_summary=False)
-        wofry_data_7  = Input("Input WofryData #7", WofryData, default=True, auto_summary=False)
-        wofry_data_8  = Input("Input WofryData #8", WofryData, default=True, auto_summary=False)
-        wofry_data_9  = Input("Input WofryData #9", WofryData, default=True, auto_summary=False)
-        wofry_data_10 = Input("Input WofryData #10", WofryData, default=True, auto_summary=False)
+        wofry_data_1  = Input("Input Wofry Data #1", WofryData, default=True, auto_summary=False)
+        wofry_data_2  = Input("Input Wofry Data #2", WofryData, default=True, auto_summary=False)
+        wofry_data_3  = Input("Input Wofry Data #3", WofryData, default=True, auto_summary=False)
+        wofry_data_4  = Input("Input Wofry Data #4", WofryData, default=True, auto_summary=False)
+        wofry_data_5  = Input("Input Wofry Data #5", WofryData, default=True, auto_summary=False)
+        wofry_data_6  = Input("Input Wofry Data #6", WofryData, default=True, auto_summary=False)
+        wofry_data_7  = Input("Input Wofry Data #7", WofryData, default=True, auto_summary=False)
+        wofry_data_8  = Input("Input Wofry Data #8", WofryData, default=True, auto_summary=False)
+        wofry_data_9  = Input("Input Wofry Data #9", WofryData, default=True, auto_summary=False)
+        wofry_data_10 = Input("Input Wofry Data #10", WofryData, default=True, auto_summary=False)
 
     class Outputs:
-        wofry_data = Output("WofryData", WofryData, id="WofryData", default=True, auto_summary=False)
+        wofry_data = Output("Wofry Data", WofryData, id="WofryData", default=True, auto_summary=False)
 
     want_main_area = 0
     want_control_area = 1

@@ -36,8 +36,8 @@ class OWWavefrontFileReader(OWWidget):
     data_path = Setting("")
 
     class Outputs:
-        wofry_data_1D = Output("WofryData1D", WofryData, id="WofryData1D", default=True, auto_summary=False)
-        wofry_data_2D = Output("WofryData2D", WofryData, id="WofryData2D", default=True, auto_summary=False)
+        wofry_data_1D = Output("Wofry Data 1D", WofryData, id="WofryData1D", default=True, auto_summary=False)
+        wofry_data_2D = Output("Wofry Data 2D", WofryData, id="WofryData2D", default=True, auto_summary=False)
 
     def __init__(self):
         super().__init__()

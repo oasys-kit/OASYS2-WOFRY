@@ -32,7 +32,7 @@ class OWWavefrontFileWriter(OWWidget):
     is_automatic_run= Setting(1)
 
     class Inputs:
-        wofry_data = Input("WofryData", WofryData, id="WofryData", default=True, auto_summary=False)
+        wofry_data = Input("Wofry Data", WofryData, id="WofryData", default=True, auto_summary=False)
 
     wavefront = None
 

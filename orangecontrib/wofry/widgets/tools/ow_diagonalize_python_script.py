@@ -31,7 +31,7 @@ class DiagonalizePythonScript(OWWidget):
     keywords = ["script"]
 
     class Inputs:
-        wofry_data  = Input("WofryData", WofryData, default=True, auto_summary=False)
+        wofry_data  = Input("Wofry Data", WofryData, default=True, auto_summary=False)
 
     class Outputs:
         tally_coherent_modes = Output("Diagonalized Coherent Modes", TallyCoherentModes, id="TallyCoherentModes", default=True, auto_summary=False)

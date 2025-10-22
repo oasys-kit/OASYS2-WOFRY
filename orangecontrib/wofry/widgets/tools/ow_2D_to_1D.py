@@ -25,12 +25,12 @@ class OW2Dto1D(WofryWidget):
     keywords = ["data", "file", "load", "read"]
 
     class Inputs:
-        wofry_data           = Input("WofryData", WofryData, default=True, auto_summary=False)
-        generic_wavefront_2D = Input("GenericWavefront2D", GenericWavefront2D, default=True, auto_summary=False)
+        wofry_data           = Input("Wofry Data", WofryData, default=True, auto_summary=False)
+        generic_wavefront_2D = Input("Generic Wavefront 2D", GenericWavefront2D, default=True, auto_summary=False)
 
     class Outputs:
-        wofry_data           = Output("WofryData", WofryData, id="WofryData", default=True, auto_summary=False)
-        generic_wavefront_1D = Output("GenericWavefront1D", GenericWavefront1D, default=True, auto_summary=False)
+        wofry_data           = Output("Wofry Data", WofryData, id="WofryData", default=True, auto_summary=False)
+        generic_wavefront_1D = Output("Generic Wavefront 1D", GenericWavefront1D, default=True, auto_summary=False)
 
 
     section_axis  = Setting(0)

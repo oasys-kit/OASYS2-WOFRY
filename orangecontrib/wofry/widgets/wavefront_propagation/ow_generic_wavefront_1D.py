@@ -33,7 +33,7 @@ class OWGenericWavefront1D(WofryWidget):
         trigger = Input("Trigger", TriggerOut, id="Trigger", default=True, auto_summary=False)
 
     class Outputs:
-        wofry_data = Output("WofryData", WofryData, id="WofryData", default=True, auto_summary=False)
+        wofry_data = Output("Wofry Data", WofryData, id="WofryData", default=True, auto_summary=False)
 
     units = Setting(1)
     energy = Setting(1000.0)

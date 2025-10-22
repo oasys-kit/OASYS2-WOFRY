@@ -34,8 +34,8 @@ class OW2Dto1D(WofryWidget):
         generic_wavefront_1D_v = Input("Vertical Wavefront 1D", GenericWavefront1D, default=True, auto_summary=False)
 
     class Outputs:
-        wofry_data           = Output("WofryData", WofryData, id="WofryData", default=True, auto_summary=False)
-        generic_wavefront_2D = Output("GenericWavefront2D", GenericWavefront2D, default=True, auto_summary=False)
+        wofry_data           = Output("Wofry Data", WofryData, id="WofryData", default=True, auto_summary=False)
+        generic_wavefront_2D = Output("Generic Wavefront 2D", GenericWavefront2D, default=True, auto_summary=False)
 
     normalize_to = Setting(0)
 

@@ -40,7 +40,7 @@ class OWUndulatorGaussianShellModel1D(WofryWidget, WidgetDecorator):
         syned_data        = WidgetDecorator.syned_input_data(multi_input=True)
 
     class Outputs:
-        wofry_data = Output("WofryData", WofryData, id="WofryData", default=True, auto_summary=False)
+        wofry_data = Output("Wofry Data", WofryData, id="WofryData", default=True, auto_summary=False)
 
     number_of_points = Setting(1000)
     initialize_from  = Setting(0)

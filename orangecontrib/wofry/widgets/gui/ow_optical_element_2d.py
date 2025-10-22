@@ -46,13 +46,13 @@ class OWWOOpticalElement2D(WofryWidget, WidgetDecorator):
     category = "Wofry Optical Elements"
 
     class Inputs:
-        wofry_data        = Input("WofryData", WofryData, default=True, auto_summary=False)
-        generic_wavefront = Input("GenericWavefront2D", GenericWavefront2D, default=True, auto_summary=False)
+        wofry_data        = Input("Wofry Data", WofryData, default=True, auto_summary=False)
+        generic_wavefront = Input("Generic Wavefront 2D", GenericWavefront2D, default=True, auto_summary=False)
         trigger           = Input("Trigger", TriggerOut, id="Trigger", default=True, auto_summary=False)
         syned_data        = WidgetDecorator.syned_input_data(multi_input=True)
 
     class Outputs:
-        wofry_data = Output("WofryData", WofryData, id="WofryData", default=True, auto_summary=False)
+        wofry_data = Output("Wofry Data", WofryData, id="WofryData", default=True, auto_summary=False)
         trigger  = Output("Trigger", TriggerIn, id="Trigger", default=True, auto_summary=False)
 
     oe_name         = Setting("")
