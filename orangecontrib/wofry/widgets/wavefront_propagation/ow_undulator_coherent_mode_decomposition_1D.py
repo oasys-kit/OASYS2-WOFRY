@@ -396,7 +396,7 @@ class OWUndulatorCoherentModeDecomposition1D(WofryWidget, WidgetDecorator):
                         ebeam = light_source.get_electron_beam()
                         und = light_source.get_magnetic_structure()
 
-                        x, xp, y, yp = ebeam.get_sigmas_all()
+                        x, xp, y, yp = ebeam.get_sigmas_all(dispersion=True)
                         self.sigma_h = x
                         self.sigma_v = y
                         self.sigma_divergence_h = xp

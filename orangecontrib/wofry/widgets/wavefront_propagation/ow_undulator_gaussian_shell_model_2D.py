@@ -287,7 +287,7 @@ class OWUndulatorGaussianShellModel2D(WofryWidget, WidgetDecorator):
 
                         self.photon_energy =  round(light_source._magnetic_structure.resonance_energy(light_source._electron_beam.gamma()), 3)
 
-                        x, xp, y, yp = light_source._electron_beam.get_sigmas_all()
+                        x, xp, y, yp = light_source._electron_beam.get_sigmas_all(dispersion=True)
 
                         self.sigma_h = x
                         self.sigma_v = y
