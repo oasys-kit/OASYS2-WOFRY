@@ -346,6 +346,8 @@ class OWWOOpticalElement1D(WofryWidget, WidgetDecorator):
         except Exception as exception:
             QMessageBox.critical(self, "Error", str(exception), QMessageBox.Ok)
 
+            self.progressBarFinished()
+
             if self.IS_DEVELOP: raise exception
 
     def print_intensities(self):
