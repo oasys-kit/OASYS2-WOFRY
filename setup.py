@@ -42,7 +42,7 @@ SETUP_REQUIRES = (
 INSTALL_REQUIRES = (
     'oasys2>=0.0.51',
     'syned-gui-2>=1.0.4',
-    'wofryimpl>=1.0.34',
+    'wofryimpl>=1.0.35',
 )
 
 PACKAGES = find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests'))
