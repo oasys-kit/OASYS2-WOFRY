@@ -51,7 +51,7 @@ class OWWOLaueCrystal1D(OWWOOpticalElement1D):
     # advanced
     poisson_ratio = Setting(0.2201)
     integration_points = Setting(500)
-    use_fast_hyp1f1 = Setting(0)
+    use_fast_hyp1f1 = Setting(2)
 
     # q-scan
     qscan_flag = Setting(0)
@@ -133,8 +133,8 @@ class OWWOLaueCrystal1D(OWWOOpticalElement1D):
         oasysgui.lineEdit(self.adv_box, self, "integration_points", "Number of points for calculating integrals",
                           tooltip="integration_points", labelWidth=300, valueType=int, orientation="horizontal")
 
-        gui.comboBox(self.adv_box, self, "use_fast_hyp1f1", label="Use asymptotic values for hyp1f1", labelWidth=380,
-                     items=["No (exact)","Yes (approx, dangerous)",],
+        gui.comboBox(self.adv_box, self, "use_fast_hyp1f1", label="hyp1f1 (Kummer) evaluation", labelWidth=380,
+                     items=["Exact, point by point (slow)", "Approximated (fast_hyp1f1)", "Exact, on cached grid (fast, recommended)",],
                      sendSelectedValue=False, orientation="horizontal",
                      )
 
