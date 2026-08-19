@@ -21,8 +21,8 @@ class InfoBoxWidget(QWidget, OWComponent):
         super(InfoBoxWidget, self).__init__()
 
         info_box_inner= gui.widgetBox(self, "Info")
-        info_box_inner.setFixedHeight(515*y_scale_factor)
-        info_box_inner.setFixedWidth(230*x_scale_factor)
+        info_box_inner.setFixedHeight(int(515*y_scale_factor))
+        info_box_inner.setFixedWidth(int(230*x_scale_factor))
 
         self.total = gui.lineEdit(info_box_inner, self, "total_field", "Total", tooltip="Total", labelWidth=115, valueType=str, orientation="horizontal")
 
@@ -88,8 +88,8 @@ class ImageViewWithFWHM(QWidget, OWComponent):
         layout.addWidget(self.info_box, 0, 1, 1, 1)
         layout.addWidget(self.plot_canvas, 0, 0, 1, 1)
 
-        layout.setColumnMinimumWidth(0, 600*x_scale_factor)
-        layout.setColumnMinimumWidth(1, 230*x_scale_factor)
+        layout.setColumnMinimumWidth(0, int(600*x_scale_factor))
+        layout.setColumnMinimumWidth(1, int(230*x_scale_factor))
 
         self.setLayout(layout)
 
@@ -193,7 +193,7 @@ class ImageViewWithFWHM(QWidget, OWComponent):
             label.set_fontsize(1)
 
         n_patches = len(self.plot_canvas._histoHPlot._backend.ax.patches)
-        if (n_patches > 0): self.plot_canvas._histoHPlot._backend.ax.patches.remove(self.plot_canvas._histoHPlot._backend.ax.patches[n_patches-1])
+        if (n_patches > 0): self.plot_canvas._histoHPlot._backend.ax.patches[n_patches-1].remove()
 
         if not ticket['fwhm_h'] == 0.0:
             x_fwhm_i, x_fwhm_f = ticket['fwhm_coordinates_h']
@@ -207,7 +207,7 @@ class ImageViewWithFWHM(QWidget, OWComponent):
                                                                  linewidth=1.5))
 
         n_patches = len(self.plot_canvas._histoVPlot._backend.ax.patches)
-        if (n_patches > 0): self.plot_canvas._histoVPlot._backend.ax.patches.remove(self.plot_canvas._histoVPlot._backend.ax.patches[n_patches-1])
+        if (n_patches > 0): self.plot_canvas._histoVPlot._backend.ax.patches[n_patches-1].remove()
 
         if not ticket['fwhm_v'] == 0.0:
             y_fwhm_i, y_fwhm_f = ticket['fwhm_coordinates_v']
