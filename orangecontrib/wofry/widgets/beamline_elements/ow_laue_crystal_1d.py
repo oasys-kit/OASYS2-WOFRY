@@ -46,6 +46,9 @@ class OWWOLaueCrystal1D(OWWOOpticalElement1D):
     photon_energy = Setting(17000.0)
     npoints_x = Setting(5000)
     a_factor = Setting(1.05)
+    flag_x_window = Setting(0)      # 0: window +-a*a_factor ; 1: window +-x_half_width
+    x_half_width_um = Setting(100.0)
+    flag_x_centered = Setting(0)    # 1: output window centred on the pattern, abscissas x - x_c
 
 
     # advanced
@@ -93,8 +96,18 @@ class OWWOLaueCrystal1D(OWWOOpticalElement1D):
                           tooltip="photon_energy", labelWidth=260, valueType=float, orientation="horizontal")
         oasysgui.lineEdit(self.source_items, self, "npoints_x", "Points in spatial coordinate",
                           tooltip="npoints_x", labelWidth=260, valueType=int, orientation="horizontal")
-        oasysgui.lineEdit(self.source_box, self, "a_factor", "Window width factor (in units of 'a', default=1)",
+        gui.comboBox(self.source_box, self, "flag_x_window", label="Output window", labelWidth=260,
+                     items=["in units of the Borrmann half-width 'a'", "absolute half width"],
+                     sendSelectedValue=False, orientation="horizontal", callback=self.set_visible)
+        self.a_factor_box = oasysgui.widgetBox(self.source_box, "", addSpace=False, orientation="vertical")
+        oasysgui.lineEdit(self.a_factor_box, self, "a_factor", "Window width factor (in units of 'a', default=1)",
                           tooltip="a_factor", labelWidth=330, valueType=float, orientation="horizontal")
+        self.x_half_width_box = oasysgui.widgetBox(self.source_box, "", addSpace=False, orientation="vertical")
+        oasysgui.lineEdit(self.x_half_width_box, self, "x_half_width_um", "Window half width [um]",
+                          tooltip="x_half_width_um", labelWidth=330, valueType=float, orientation="horizontal")
+        self.x_centered_box = oasysgui.widgetBox(self.source_box, "", addSpace=False, orientation="vertical")
+        gui.comboBox(self.x_centered_box, self, "flag_x_centered", label="Centre output on the pattern (x - x_c)",
+                     labelWidth=260, items=["No", "Yes"], sendSelectedValue=False, orientation="horizontal")
 
         #
         # crystal
@@ -179,6 +192,9 @@ class OWWOLaueCrystal1D(OWWOOpticalElement1D):
         self.angle_box.setVisible(False)
         #
         self.source_items.setVisible(self.source_flag == 1)
+        self.a_factor_box.setVisible(self.flag_x_window == 0)
+        self.x_half_width_box.setVisible(self.flag_x_window == 1)
+        self.x_centered_box.setVisible(self.source_flag == 1)
         self.q_box.setVisible(self.qscan_flag == 1)
         self.angle_box.setVisible(self.angle_scan_flag == 1)
 
@@ -206,6 +222,9 @@ class OWWOLaueCrystal1D(OWWOOpticalElement1D):
                                integration_points=self.integration_points,
                                npoints_x=npoints_x,
                                a_factor=self.a_factor,
+                               flag_x_window=self.flag_x_window,
+                               x_half_width=self.x_half_width_um * 1e-6,  # m
+                               flag_x_centered=self.flag_x_centered,
                                q=self.q,
                                use_fast_hyp1f1=self.use_fast_hyp1f1,
                                source_flag=self.source_flag,
@@ -218,6 +237,10 @@ class OWWOLaueCrystal1D(OWWOOpticalElement1D):
         super().check_data()
 
         congruence.checkStrictlyPositiveNumber(self.thickness_um, "Crystal thickness [um]")
+        if self.flag_x_window == 0:
+            congruence.checkStrictlyPositiveNumber(self.a_factor, "Window width factor")
+        else:
+            congruence.checkStrictlyPositiveNumber(self.x_half_width_um, "Window half width [um]")
         congruence.checkNumber(self.p, "p [m]")
         congruence.checkNumber(self.q, "q [m]")
 
